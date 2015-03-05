@@ -1,0 +1,21 @@
+{
+  "author": "Svein Inge Albrigtsen",
+  "name": "nnn",
+  "description": "nnn",
+  "version": "0.0.0",
+  "main": "./lib/nnn.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Thhethssmuz/nnn.git"
+  },
+  "scripts": {
+    "test": "nodeunit test/*.js --reporter=verbose"
+  },
+  "dependencies": {
+    "logule": "^2.0.1"
+  },
+  "devDependencies": {
+    "nodeunit": "^0.9.1"
+  },
+  "license": "MIT"
+}
