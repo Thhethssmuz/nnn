@@ -9,12 +9,16 @@
     "url": "https://github.com/Thhethssmuz/nnn.git"
   },
   "scripts": {
-    "test": "nodeunit test/*.js --reporter=verbose"
+    "test": "nodeunit test/*.js --reporter=verbose",
+    "coverage": "jscoverage lib && NNN_COV=1 nodeunit --reporter=lcov test/*.test.js",
+    "coveralls": "npm run coverage | coveralls"
   },
   "dependencies": {
     "logule": "^2.0.1"
   },
   "devDependencies": {
+    "coveralls": "^2.11.2",
+    "jscoverage": "^0.5.9",
     "nodeunit": "^0.9.1"
   },
   "license": "MIT"
