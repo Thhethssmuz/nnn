@@ -1,4 +1,4 @@
-var server = require('../lib/server');
+var server = require(process.env.NNN_COV ? '../lib-cov/server' : '../');
 
 // list of handlers for test server
 var testHandlers = [
@@ -53,7 +53,7 @@ var tests = [ {
   method: 'POST',
   args  : [ '/my_special_file' ],
   route : 'ALL /static/*'
-},{
+}, {
   url   : '/index',
   method: 'GET',
   args  : [],
@@ -153,17 +153,12 @@ testHandlers.forEach(function (handler) {
         'caught by handler: ' + req.route
       );
 
-      t.deepEqual(args, req.args, 'matched arguments: ' + str(req.args));
+      t.deepEqual(args, req.args, 'matched arguments: ' + str(req.args) + '\n');
 
       t.done();
-      console.log();
     };
   });
 });
-
-
-// print the routing table for the server
-server.router.print();
 
 // run tests
 tests.forEach(function (test) {
