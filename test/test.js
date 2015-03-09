@@ -1,4 +1,5 @@
-var server = require(process.env.NNN_COV ? '../lib-cov/server' : '../');
+var Server = require(process.env.NNN_COV ? '../lib-cov/server' : '../');
+var server = new Server({});
 
 // list of handlers for test server
 var testHandlers = [
