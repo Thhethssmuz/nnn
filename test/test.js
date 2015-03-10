@@ -14,6 +14,10 @@ var testHandlers = [
   'GET /search?name',
   'GET /search?surname',
   'GET /search?name&surname',
+  'POST /login',
+  'POST /login?user&pw',
+  'GET /login',
+  'ALL /login',
   'ALL 404',
   'ALL 500'
 ];
@@ -29,6 +33,11 @@ var tests = [ {
   method: 'GET',
   args  : [],
   route : 'ALL 404'
+}, {
+  url   : '/?query=true',
+  method: 'GET',
+  args  : [],
+  route : 'GET /'
 }, {
   url   : '/static/',
   method: 'GET',
@@ -129,6 +138,36 @@ var tests = [ {
   method: 'GET',
   args  : [ 'John', 'Doe' ],
   route : 'GET /search?name&surname'
+}, {
+  url   : '/login',
+  method: 'GET',
+  args  : [],
+  route : 'GET /login'
+}, {
+  url   : '/login?user=test',
+  method: 'GET',
+  args  : [],
+  route : 'GET /login'
+}, {
+  url   : '/login?user=test&pw=1234',
+  method: 'GET',
+  args  : [],
+  route : 'GET /login'
+}, {
+  url   : '/login?user=test&pw=1234',
+  method: 'POST',
+  args  : [ 'test', '1234' ],
+  route : 'POST /login?user&pw'
+}, {
+  url   : '/login',
+  method: 'POST',
+  args  : [],
+  route : 'POST /login'
+}, {
+  url   : '/login',
+  method: 'HEAD',
+  args  : [],
+  route : 'ALL /login'
 } ];
 
 
