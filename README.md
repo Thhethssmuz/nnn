@@ -136,13 +136,13 @@ Error handlers are implemented the same way as middleware, except they do not ha
 
 ```javascript
 server.on('404', function (req, res) {
-  res.statusMessage = 'Not found';
+  res.statusMessage = 'Not Found';
   res.statusCode = 404;
   res.end();
 });
 ```
 
-By default if a request do not match any possible handler the `404` event is called, or if a handler throws an error the `500` event is called with the error as en additional argument. However, non of these handler are implemented by default.
+By default if a request do not match any possible handler the `404` event is called, or if a handler throws an error the `500` event is called with the error as en additional argument. The above example is the default implementation for the `404` handler and a similar default implementation exists for the `500` handler, however, these default can easily be overwritten by redeclaring them.
 
 ### Server.raise(route, request, response[, ...])
 
