@@ -10,8 +10,8 @@ var Server = require('nnn');
 var server = new Server({
   http: 8080,
   https: 3000,
-  key: fs.readFileSync('/my/private/ssl-key.pem'),
-  cert: fs.readFileSync('/my/public/x509-cert.pem')
+  key: fs.readFileSync('/keys/example-key.pem'),
+  cert: fs.readFileSync('/keys/example-cert.pem')
 });
 ```
 
@@ -142,8 +142,18 @@ server.on('404', function (req, res) {
 });
 ```
 
-By default if a request do not match any possible handler the `404` event is called, or if a handler throws an error the `500` event is called with the error as en additional argument. The above example is the default implementation for the `404` handler and a similar default implementation exists for the `500` handler, however, these default can easily be overwritten by redeclaring them.
+By default if a request do not match any possible handler the `404` event is called, or if a handler throws an error the `500` event is called with the error as en additional argument. The above example is the default implementation for the `404` handler and a similar default implementation exists for the `500` handler, however, these defaults can easily be overwritten by redeclaring them.
 
 ### Server.raise(route, request, response[, ...])
 
 You may also directly call there handlers by the raise function, passing any additional arguments along with it.
+
+```javascript
+server.on('/entries/:id', function (req, res) {
+  database.getEntry(id, function (err, entry) {
+    if (err)
+      return server.raise('500', req, res, err);
+    res.end(entry);
+  });
+});
+```
