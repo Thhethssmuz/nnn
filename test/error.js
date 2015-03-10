@@ -22,3 +22,5 @@ server.on('500', function (req, res, err) {
 server.dispatch({url: '/1', expected: 'error-1'}, {});
 server.dispatch({url: '/2', expected: 'error-2'}, {});
 server.dispatch({url: '/3', expected: 'not-found'}, {});
+
+server.raise('500', {url: '/', expected: 'custom-error'}, {}, 'custom-error');
