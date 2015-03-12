@@ -155,25 +155,6 @@ module.exports.middlewareError = function (t) {
     t.strictEqual(res.statusCode, 500, 'status code');
     t.strictEqual(res.statusMessage, 'Internal Server Error', 'status message');
     t.done();
+    request.get(host+'/stop', function (err, res, body) {});
   });
 };
-
-
-/*
-body = {
-  handler: 'GET /',
-  method: 'GET',
-  url: '/',
-  middleware: [],
-  args: [],
-  extra: var }
-
-res.statusCode
-res.statusMessage
-*/
-
-
-
-setTimeout(function () {
-  request.get(host+'/stop', function (err, res, body) {});
-}, 2000);
