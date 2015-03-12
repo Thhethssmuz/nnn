@@ -149,7 +149,7 @@ By default if a request do not match any possible handler the `404` event is cal
 You may also directly call there handlers by the raise function, passing any additional arguments along with it.
 
 ```javascript
-server.on('/entries/:id', function (req, res) {
+server.on('/entries/:id', function (req, res, id) {
   database.getEntry(id, function (err, entry) {
     if (err)
       return server.raise('500', req, res, err);
