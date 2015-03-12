@@ -136,7 +136,6 @@ Error handlers are implemented the same way as middleware, except they do not ha
 
 ```javascript
 server.on('404', function (req, res) {
-  res.statusMessage = 'Not Found';
   res.statusCode = 404;
   res.end();
 });
