@@ -1,8 +1,8 @@
 var log = require('logule').init(module).mute('info', 'error');
-
 var Server = require(process.env.NNN_COV ? '../lib-cov/server' : '../');
-var server = new Server({http: 8080});
+var server = new Server();
 var request = require('request');
+
 var host = 'http://localhost:8080';
 
 var testHandlers = [
@@ -46,6 +46,8 @@ server.on('/stop', function (req, res) {
   process.exit();
 });
 
+server.start();
+server.cfg = {http: 8080};
 server.start();
 
 //-----------------------------------------------------------------------------
