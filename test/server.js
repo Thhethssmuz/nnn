@@ -7,9 +7,11 @@ var host = 'http://localhost:8080';
 
 var testHandlers = [
   'GET /',
-  'GET /throwmiddleware throw',
   'POST / m1 m2',
   'POST m2',
+  'ALL m3 throw2',
+  'GET /throwmiddleware throw',
+  'ALL /throwmiddleware2 m1 m3',
   'ALL /index/*',
   'ALL /index/:id',
   'ALL /index/:id?name',
@@ -40,7 +42,10 @@ server.on('m1', function (req, res, callback) {
 });
 
 server.on('/throw', function (req, res) { throw 'handler error'; });
-server.on('throw',  function (req, res) { throw 'middleware error'; });
+server.get('throw',  function (req, res) { throw 'middleware error'; });
+server.post('throw2', function (req, res) {
+  server.raise('404', req, res);
+});
 
 server.on('/stop', function (req, res) {
   process.exit();
@@ -120,6 +125,19 @@ module.exports.query = function (t) {
     t.done();
   });
 };
+module.exports.query2 = function (t) {
+  request.get(host+'/index/123?lol=true', function (err, res, body) {
+    var r = JSON.parse(body);
+
+    t.strictEqual(res.statusCode, 200, 'status code');
+    t.strictEqual(res.statusMessage, 'OK', 'status message');
+    t.strictEqual(r.handler, 'ALL /index/:id', 'handler');
+    t.deepEqual(r.middleware, [], 'middleware');
+    t.deepEqual(r.args, ['123'], 'arguments');
+
+    t.done();
+  });
+};
 
 module.exports.overwrite = function (t) {
   request.post(host+'/test?arg1=1&arg2=2', function (err, res, body) {
@@ -154,6 +172,13 @@ module.exports.middlewareError = function (t) {
   request.get(host+'/throwmiddleware', function (err, res, body) {
     t.strictEqual(res.statusCode, 500, 'status code');
     t.strictEqual(res.statusMessage, 'Internal Server Error', 'status message');
+    t.done();
+  });
+};
+module.exports.middlewareError2 = function (t) {
+  request.post(host+'/throwmiddleware2', function (err, res, body) {
+    t.strictEqual(res.statusCode, 404, 'status code');
+    t.strictEqual(res.statusMessage, 'Not Found', 'status message');
     t.done();
     request.get(host+'/stop', function (err, res, body) {});
   });
