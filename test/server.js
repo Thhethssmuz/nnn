@@ -86,6 +86,14 @@ module.exports.middleware = function (t) {
   });
 };
 
+module.exports.middleware2 = function (t) {
+  request.post(host+'/', function (err, res, body) {
+    var r = JSON.parse(body);
+    t.deepEqual(r.extra, 'm1 called', 'middleware persistence');
+    t.done();
+  });
+};
+
 module.exports.variable = function (t) {
   request.get(host+'/index/123', function (err, res, body) {
     var r = JSON.parse(body);
