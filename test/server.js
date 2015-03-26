@@ -38,7 +38,7 @@ testHandlers.forEach(function (handler) {
 
 server.on('m1', function (req, res, callback) {
   res.extra = 'm1 called';
-  callback(req, res);
+  callback();
 });
 
 server.on('/throw', function (req, res) { throw 'handler error'; });
