@@ -19,25 +19,14 @@ This will start an http server on port 8080 and an https server on port 3000. Bo
 
 ## Routing
 
-Creating routing entries are done through the server's `on`, `get`, `post` and `bind` methods.
+Creating routing entries are done through the server's `on` or `get`, `post`, `put`, `delete`, etc., methods.
 
-### Server.get(route[, middleware], handler)
+### Server.METHOD(route[, middleware], handler)
 
-Creates a routing entry for `HTTP(S) GET` requests.
+Creates a routing entry for `HTTP(S) <METHOD>` requests.
 
 ```javascript
 server.get('/', function (req, res) {
-  // do stuff
-  res.end();
-});
-```
-
-### Server.post(route[, middleware], handler)
-
-Creates a routing entry for `HTTP(S) POST` requests.
-
-```javascript
-server.post('/', function (req, res) {
   // do stuff
   res.end();
 });
@@ -49,17 +38,6 @@ Creates a routing entry for any `HTTP(S)` request. The internal `ALL` method, us
 
 ```javascript
 server.on('/', function (req, res) {
-  // do stuff
-  res.end();
-});
-```
-
-### Server.bind(route, method[, middleware], handler)
-
-Creates a routing entry for a `HTTP(S)` request where the second argument specifies the method to use.
-
-```javascript
-server.bind('/', 'HEAD', function (req, res) {
   // do stuff
   res.end();
 });
