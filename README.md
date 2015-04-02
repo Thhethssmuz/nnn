@@ -34,7 +34,7 @@ server.get('/', function (req, res) {
 
 ### Server.on(route[, middleware], handler)
 
-Creates a routing entry for any `HTTP(S)` request. The internal `ALL` method, used to implement this, has a lower precedence than any other routing method, and will therefore only trigger if it is not caught by a more specific method defined for the same route.
+Creates a routing entry for any `HTTP(S)` request, however, this method has a lower precedence than any other routing method, and will therefore only trigger if it is not caught by a more specific method defined for the same route.
 
 ```javascript
 server.on('/', function (req, res) {
@@ -106,6 +106,15 @@ server.on('require-session', function (req, res, callback) {
 ```
 
 Middleware may also be given a list of middleware, which will be called before the main handler in the same manner as for normal routing entries. Apply with care! as there is nothing to stop you from defining a circular middleware dependency.
+
+### Express
+
+Express middleware may be bound directly onto the router. Example using the `cookies` library.
+
+```javascript
+var Cookies = require('cookies');
+server.on('cookies', Cookies.express(keys));
+```
 
 
 ## Error Handlers
