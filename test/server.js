@@ -47,10 +47,6 @@ server.post('throw2', function (req, res) {
   server.raise('404', req, res);
 });
 
-server.on('/stop', function (req, res) {
-  process.exit();
-});
-
 server.start();
 server.cfg = {http: 8080};
 server.start();
@@ -188,6 +184,7 @@ module.exports.middlewareError2 = function (t) {
     t.strictEqual(res.statusCode, 404, 'status code');
     t.strictEqual(res.statusMessage, 'Not Found', 'status message');
     t.done();
-    request.get(host+'/stop', function (err, res, body) {});
+
+    server.stop();
   });
 };
