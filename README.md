@@ -15,7 +15,15 @@ var server = new Server({
 });
 ```
 
-This will start an http server on port 8080 and an https server on port 3000. Both will share one single routing table. If you only want to use one of the protocols simply omit the http or https key from the configuration.
+This will create an http server on port 8080 and an https server on port 3000. Both will share one single routing table. If you only want to use one of the protocols simply omit the http or https key from the configuration.
+
+### Server.start()
+
+starts the server.
+
+### Server.stop()
+
+Stops the server.
 
 ## Routing
 
