@@ -16,7 +16,9 @@ var testHandlers = [
   'ALL /index/:id',
   'ALL /index/:id?name',
   'ALL /test?arg1&arg2',
-  'ALL /test?arg1&arg2 m1'
+  'ALL /test?arg1&arg2 m1',
+  'ALL /middlewareNoArg ma',
+  'ALL /middlewareArg ma/1337'
 ];
 
 testHandlers.forEach(function (handler) {
@@ -38,6 +40,14 @@ testHandlers.forEach(function (handler) {
 
 server.on('m1', function (req, res, callback) {
   res.extra = 'm1 called';
+  callback();
+});
+
+server.on('ma', function (req, res, callback) {
+  callback();
+});
+server.on('ma/:arg', function (req, res, arg, callback) {
+  res.extra = arg;
   callback();
 });
 
@@ -81,7 +91,6 @@ module.exports.middleware = function (t) {
     t.done();
   });
 };
-
 module.exports.middleware2 = function (t) {
   request.post(host+'/', function (err, res, body) {
     var r = JSON.parse(body);
@@ -183,6 +192,21 @@ module.exports.middlewareError2 = function (t) {
   request.post(host+'/throwmiddleware2', function (err, res, body) {
     t.strictEqual(res.statusCode, 404, 'status code');
     t.strictEqual(res.statusMessage, 'Not Found', 'status message');
+    t.done();
+  });
+};
+
+module.exports.middlewareNoArg = function (t) {
+  request.post(host+'/middlewareNoArg', function (err, res, body) {
+    var r = JSON.parse(body);
+    t.strictEqual(r.extra, undefined, 'no arguments defined');
+    t.done();
+  });
+};
+module.exports.middlewareArg = function (t) {
+  request.post(host+'/middlewareArg', function (err, res, body) {
+    var r = JSON.parse(body);
+    t.strictEqual(r.extra, '1337', 'argument defined');
     t.done();
 
     server.stop();
