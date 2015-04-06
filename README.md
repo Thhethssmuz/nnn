@@ -124,6 +124,21 @@ var Cookies = require('cookies');
 server.on('cookies', Cookies.express(keys));
 ```
 
+### Middleware Arguments
+
+Middleware may also take routing arguments, and as with normal routing entries their value will be given as an extra argument to the handler function. Note that the callback function is always the last argument.
+
+```javascript
+server.on('access/:level', ['require-session'], function (req, res, level, callback) {
+  if (req.session.user.privileges < level)
+    return server.raise('401', req, res);
+  callback();
+});
+
+server.get('/admin', ['access/1337'], function (req, res) {
+  // return admin page
+});
+```
 
 ## Error Handlers
 
