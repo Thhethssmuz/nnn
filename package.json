@@ -10,17 +10,18 @@
   },
   "scripts": {
     "build": "pegjs --allowed-start-rules route,pair,key,value,method parser/grammar.pegjs parser/index.js",
-    "test": "nodeunit test/*.js --reporter=verbose",
-    "coverage": "jscoverage lib && NNN_COV=1 nodeunit --reporter=lcov test/*.js",
-    "coveralls": "npm run coverage | coveralls"
+    "test": "bndg test/*.js | tap-spec",
+    "precoverage": "istanbul instrument lib -o lib-cov",
+    "coverage": "istanbul cover bndg test/*.js && cat coverage/lcov.info",
+    "coveralls": "npm run coverage && cat coverage/lcov.info | coveralls"
   },
   "dependencies": {},
   "devDependencies": {
-    "coveralls": "^2.11.2",
-    "jscoverage": "^0.5.9",
+    "bandage": "^0.5.0",
+    "coveralls": "^2.11.4",
+    "istanbul-harmony": "^0.3.16",
     "pegjs": "^0.9.0",
-    "nodeunit": "^0.9.1",
-    "request": "^2.53.0"
+    "tap-spec": "^4.0.2"
   },
   "license": "MIT"
 }
