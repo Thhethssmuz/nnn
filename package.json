@@ -15,7 +15,10 @@
     "coverage": "istanbul cover bndg test/*.js && cat coverage/lcov.info",
     "coveralls": "npm run coverage && cat coverage/lcov.info | coveralls"
   },
-  "dependencies": {},
+  "dependencies": {
+    "co": "^4.6.0",
+    "standard-http-error": "^2.0.0"
+  },
   "devDependencies": {
     "bandage": "^0.5.0",
     "coveralls": "^2.11.4",
