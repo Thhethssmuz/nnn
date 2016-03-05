@@ -9,6 +9,7 @@
     "url": "https://github.com/Thhethssmuz/nnn.git"
   },
   "scripts": {
+    "build": "pegjs --allowed-start-rules route,pair,key,value,method parser/grammar.pegjs parser/index.js",
     "test": "nodeunit test/*.js --reporter=verbose",
     "coverage": "jscoverage lib && NNN_COV=1 nodeunit --reporter=lcov test/*.js",
     "coveralls": "npm run coverage | coveralls"
@@ -17,6 +18,7 @@
   "devDependencies": {
     "coveralls": "^2.11.2",
     "jscoverage": "^0.5.9",
+    "pegjs": "^0.9.0",
     "nodeunit": "^0.9.1",
     "request": "^2.53.0"
   },
