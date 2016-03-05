@@ -14,9 +14,6 @@
     "coveralls": "npm run coverage | coveralls"
   },
   "dependencies": {},
-  "peerDependencies": {
-    "logule": "~2"
-  },
   "devDependencies": {
     "coveralls": "^2.11.2",
     "jscoverage": "^0.5.9",
