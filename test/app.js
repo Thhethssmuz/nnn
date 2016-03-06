@@ -349,3 +349,19 @@ test('headers', function *(t) {
   ]);
 });
 
+test('brace expansion', function *(t) {
+  yield makeTest(t, {}, [
+    { handler: { url: '/{a,b}', method: '{GET,POST}', headers: ['n', {'{x,y}': '*'}] },
+      match  : [
+        { url: '/a', method: 'GET',  headers: {'n':'n', 'x':'1'}, args: ['n', '1'] },
+        { url: '/a', method: 'GET',  headers: {'n':'n', 'y':'2'}, args: ['n', '2'] },
+        { url: '/a', method: 'POST', headers: {'n':'n', 'x':'1'}, args: ['n', '1'] },
+        { url: '/a', method: 'POST', headers: {'n':'n', 'y':'2'}, args: ['n', '2'] },
+        { url: '/b', method: 'GET',  headers: {'n':'n', 'x':'1'}, args: ['n', '1'] },
+        { url: '/b', method: 'GET',  headers: {'n':'n', 'y':'2'}, args: ['n', '2'] },
+        { url: '/b', method: 'POST', headers: {'n':'n', 'x':'1'}, args: ['n', '1'] },
+        { url: '/b', method: 'POST', headers: {'n':'n', 'y':'2'}, args: ['n', '2'] },
+      ]
+    }
+  ]);
+});
