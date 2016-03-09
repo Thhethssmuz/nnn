@@ -146,6 +146,7 @@ test('segment match', function *(t) {
   });
 });
 
+
 test('segments satisfy', function *(t) {
   t.plan(2);
 
@@ -168,6 +169,23 @@ test('segments match', function *(t) {
     t.eq(x, 'lol', 'yields value of continuation router');
   }, () => {
     t.fail('segments fail');
+  });
+});
+test('segments error', function *(t) {
+  t.plan(2);
+
+  let router = Router.segments(Router.satisfy(x => x === 'x/y'), Router.of('lol'));
+
+  router.unRouter(new State([],[],null,null,[],[]), (x, s) => {
+    t.fail('should not pass for empty path');
+  }, () => {
+    t.ok(true, 'should not pass for empty path');
+  });
+
+  router.unRouter(new State(['x'],[],null,null,[],[]), (x, s) => {
+    t.fail('should not pass for empty path');
+  }, () => {
+    t.ok(true, 'should not pass for empty path');
   });
 });
 
@@ -243,6 +261,17 @@ test('method match', function *(t) {
     t.eq(x, ['x'], 'yields captures');
   }, () => {
     t.fail('method fail');
+  });
+});
+test('method error', function *(t) {
+  t.plan(1);
+
+  let router = Router.method(Router.satisfy(x => x === 'x'));
+
+  router.unRouter(new State([],[],null,null,[],[]), (x, s) => {
+    t.fail('should not pass for no method');
+  }, () => {
+    t.ok(true, 'should not pass for no method');
   });
 });
 
