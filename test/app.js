@@ -35,7 +35,7 @@ let makeTest = function *(t, opts, routes) {
         return x;
       })
 
-      t.eq(args, Array.from(arguments), msg);
+      t.eq(Array.from(arguments), args, msg);
     };
 
     if (x.handler)
@@ -361,6 +361,41 @@ test('brace expansion', function *(t) {
         { url: '/b', method: 'GET',  headers: {'n':'n', 'y':'2'}, args: ['n', '2'] },
         { url: '/b', method: 'POST', headers: {'n':'n', 'x':'1'}, args: ['n', '1'] },
         { url: '/b', method: 'POST', headers: {'n':'n', 'y':'2'}, args: ['n', '2'] },
+      ]
+    }
+  ]);
+});
+
+test('case insensitivity', function *(t) {
+  yield makeTest(t, {case: true}, [
+    { handler: { url: '/a', method: 'GET', headers: {} },
+      match  : [
+        { url: '/a', method: 'GET', headers: {}, args: [] },
+        { url: '/A', method: 'GET', headers: {}, args: [] }
+      ]
+    }, {
+      handler: { url: '/[b]', method: 'GET', headers: {} },
+      match  : [
+        { url: '/b', method: 'GET', headers: {}, args: [] },
+        { url: '/B', method: 'GET', headers: {}, args: [] }
+      ]
+    }, {
+      handler: { url: '/(c)', method: 'GET', headers: {} },
+      match  : [
+        { url: '/c', method: 'GET', headers: {}, args: ['c'] },
+        { url: '/C', method: 'GET', headers: {}, args: ['C'] }
+      ]
+    }, {
+      handler: { url: '/d*', method: 'GET', headers: {} },
+      match  : [
+        { url: '/de', method: 'GET', headers: {}, args: ['e'] },
+        { url: '/De', method: 'GET', headers: {}, args: ['e'] }
+      ]
+    }, {
+      handler: { url: '/e**', method: 'GET', headers: {} },
+      match  : [
+        { url: '/e/f', method: 'GET', headers: {}, args: ['/f'] },
+        { url: '/E/f', method: 'GET', headers: {}, args: ['/f'] }
       ]
     }
   ]);
