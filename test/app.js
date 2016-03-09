@@ -403,7 +403,7 @@ test('case insensitivity', function *(t) {
 
 test('trimming', function *(t) {
   yield makeTest(t, {trim: true}, [
-    { handler: { url: '/', method: 'GET', headers: {} },
+    { handler: { url: '', method: 'GET', headers: {} },
       match  : [
         { url: '', method: 'GET', headers: {}, args: [] },
         { url: '/', method: 'GET', headers: {}, args: [] }
