@@ -178,7 +178,7 @@ test('case conflicts', function *(t) {
 });
 
 test('trim conflicts', function *(t) {
-  t.plan(5);
+  t.plan(7);
 
   let show = r => (r.method || 'ALL') + ' ' + r.url + (r.header ? ' ' + JSON.stringify(r.header) : '');
   let eq = (x, y, trim) => {
@@ -190,6 +190,8 @@ test('trim conflicts', function *(t) {
     return t.notThrows(() => build([x,y], {trim}), msg);
   }
 
+  yield eq({url: ''}, {url: '/'}, true);
+  yield ne({url: ''}, {url: '/'}, false);
   yield eq({url: '/a'}, {url: '/a/'}, true);
   yield ne({url: '/a'}, {url: '/a/'}, false);
   yield eq({url: '/a/b'}, {url: '/a/b/'}, true);
