@@ -450,6 +450,22 @@ test('method', function *(t) {
   }, SyntaxError, 'glob pattern illegal in method');
 });
 
+test('mixed patterns', function *(t) {
+
+  t.plan(1);
+
+  t.eq(parser.parse('a[b](c)*d**'), [{
+    type   : 'segment',
+    pattern: 'glob',
+    match  : /^ab(c)([^\/]*)d(.*)$/,
+    org    : 'a[b](c)*d**'
+  }, {
+    type   : 'segment',
+    pattern: 'null',
+    match  : undefined
+  }], 'mixed patterns');
+});
+
 test('reserved', function *(t) {
 
   let legal = (pattern, msg) => {
