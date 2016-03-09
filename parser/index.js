@@ -1230,9 +1230,10 @@ module.exports = (function() {
 
       let make_regexp = function (x) {
         switch (x.type) {
-          case 'conditional': return '^' + x.match + '$';
-          case 'variable'   : return '^' + '([^\\/]*)' + '$';
-          case 'glob'       : return '^' + '(.*)' + '$';
+          case 'absolute'   : return x.match;
+          case 'conditional': return x.match;
+          case 'variable'   : return '([^\\/]*)';
+          case 'glob'       : return '(.*)';
         }
       };
       let make_pattern = function (xs, type) {
@@ -1243,7 +1244,7 @@ module.exports = (function() {
 
         let pattern = gc && 'glob' || vc && 'variable' || cc && 'conditional' || 'absolute';
         let org     = xs.map(x => x.org || x.match).join('');
-        let match   = !cc && !vc && !gc ? org : new RegExp(xs.map(make_regexp).join(''));
+        let match   = !cc && !vc && !gc ? org : new RegExp('^' + xs.map(make_regexp).join('') + '$');
 
         return { type, pattern, org, match };
       };
