@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "bandage": "^0.5.0",
+    "co-request": "^1.0.0",
     "coveralls": "^2.11.4",
     "istanbul-harmony": "^0.3.16",
     "pegjs": "^0.9.0",
