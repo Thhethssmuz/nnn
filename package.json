@@ -11,9 +11,7 @@
   "scripts": {
     "build": "pegjs --allowed-start-rules route,pair,key,value,method parser/grammar.pegjs parser/index.js",
     "test": "bndg test/*.js | tap-spec",
-    "precoverage": "istanbul instrument lib -o lib-cov",
-    "coverage": "istanbul cover bndg test/*.js && cat coverage/lcov.info",
-    "coveralls": "npm run coverage && cat coverage/lcov.info | coveralls"
+    "coverage": "istanbul cover bndg test/*.js && cat coverage/lcov.info"
   },
   "dependencies": {
     "brace-expansion": "^1.1.3",
@@ -23,7 +21,6 @@
   "devDependencies": {
     "bandage": "^0.5.0",
     "co-request": "^1.0.0",
-    "coveralls": "^2.11.4",
     "istanbul": "^0.4.2",
     "pegjs": "^0.9.0",
     "tap-spec": "^4.0.2"
