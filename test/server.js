@@ -122,3 +122,34 @@ test('https', function *(t) {
   );
   yield app.stop();
 });
+
+test('app failures', function *(t) {
+  t.plan(4);
+
+  let app1 = new App();
+  yield app1.start({ http: 8080 });
+  let r1 = yield request('http://localhost:8080', {timeout: 1000});
+  t.eq(r1.statusCode, 500, 'no error handler throws out');
+  yield app1.stop();
+
+  let app2 = new App();
+  app2.catch.all(500, function *() {
+    throw new Error('error');
+  });
+  yield app2.start({ http: 8080 });
+  let r2 = yield request('http://localhost:8080', {timeout: 1000});
+  t.eq(r2.statusCode, 500, 'error in error handler throws out');
+  yield app2.stop();
+
+  let app3 = new App();
+  app3.use(function *(next) {
+    yield next().catch(() => {
+      t.ok(true, 'throw out caught in global middleware');
+    });
+    this.res.end();
+  });
+  yield app3.start({ http: 8080 });
+  let r3 = yield request('http://localhost:8080', {timeout: 1000});
+  t.eq(r3.statusCode, 200, 'response ok');
+  yield app3.stop();
+});
