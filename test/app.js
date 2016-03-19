@@ -137,7 +137,47 @@ test('middleware', function *(t) {
 
   yield app.dispatch({url: '/', method: 'GET', headers: {}});
 });
+test('middleware not found', function *(t) {
+  t.plan(1);
+  let app = new App();
+  app.all('/', ['a'], function *() {});
+  app.catch.all(500, function *(err) {
+    t.ok(/No middleware handler/.test(err.message), 'catch middleware not found');
+  });
+  app.finalize();
 
+  yield app.dispatch({url: '/', method: 'GET', headers: {}});
+});
+test('middleware short circuit', function *(t) {
+  t.plan(4);
+
+  let CTX = function (req, res) {
+    this.req = req;
+    this.res = res;
+    this.test = 0;
+  };
+
+  let app = new App({context: CTX});
+  app.use(function *(next) {
+    t.eq(this.test += 1, 1, 'global middleware');
+    yield next();
+    t.ok(true, 'global middleware finishes execution after error');
+  });
+  app.middleware.all('a', function *(next) {
+    t.eq(this.test += 1, 2, 'middleware');
+    yield next();
+    t.fail('middleware did not short circuit');
+  });
+  app.all('/', ['a','b'], function *() {
+    t.fail('handler executed');
+  });
+  app.catch.all(500, function *(err) {
+    t.ok(/No middleware handler/.test(err.message), 'catch middleware not found');
+  });
+  app.finalize();
+
+  yield app.dispatch({url: '/', method: 'GET', headers: {}});
+});
 
 test('not found', function *(t) {
   yield makeTest(t, {}, [
