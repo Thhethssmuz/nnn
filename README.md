@@ -1,168 +1,206 @@
 # nnn
+[![npm status](http://img.shields.io/npm/v/nnn.svg)](https://www.npmjs.org/package/nnn)
 [![build status](https://secure.travis-ci.org/Thhethssmuz/nnn.svg)](http://travis-ci.org/Thhethssmuz/nnn)
 [![coverage status](http://img.shields.io/coveralls/Thhethssmuz/nnn.svg)](https://coveralls.io/r/Thhethssmuz/nnn)
+[![dependency status](https://david-dm.org/thhethssmuz/nnn.svg)](https://david-dm.org/thhethssmuz/nnn)
 
-## Setup
+## API
+
+### new App(opts) :: App
+
+Create a new App instance. 
+
+- `opts.trim`: Trim trailing `/`'s from the router, i.e. treat the url `/my/path` and `/my/path/` as equals. Default is `false`.
+- `opts.case`: Make the router case insensitive, default is `false`.
+- `opts.context`: set the context for the router, i.e. the context each handler will be called in. By default the context is an object with two keys `req` and `res`, which corresponds to the request and response object gotten from Node.js. The context should be a class and will be instantiated using the `new` keyword. The constructor is also passed the request and response object, although what you do from that point is up to you.
 
 ```javascript
-var Server = require('nnn');
+const App = require('nnn');
 
-var server = new Server({
-  http: 8080,
-  https: 3000,
-  key: fs.readFileSync('/keys/example-key.pem'),
-  cert: fs.readFileSync('/keys/example-cert.pem')
+class MyContext {
+  constructor(req, res) {
+    this.req = req;
+    this.res = res;
+  }
+  redirect(location) {
+    this.res.writeHead(302, {'Location': location});
+    this.res.end();
+  }
+}
+
+let app = new App({context: MyContext});
+
+app.get('/my-resource', function *() {
+  this.redirect('/my-new-resource');
 });
 ```
 
-This will create an http server on port 8080 and an https server on port 3000. Both will share one single routing table. If you only want to use one of the protocols simply omit the http or https key from the configuration.
+### app.on(route[, middleware], handler) :: App
 
-### Server.start()
+Bind a listener to the app. The route option may be either a URL string or an object with a `url`, `method` and `headers` keys.
 
-starts the server.
+```javascript
+app.on('/', function *() {
+  // ...
+});
 
-### Server.stop()
+app.on({
+  url    : '/',
+  method : 'GET',
+  headers: {'X-Requested-With': 'XMLHttpRequest'}
+}, function *() {
+  // ...
+});
+```
 
-Stops the server.
+All routes take an optional list of middleware to use. Middleware handlers are then called in left-to-right order before the main handler for the route.
+
+```javascript
+app.all('/', ['session'], function *(next) {
+  // ...
+});
+```
+
+### app.get|post|put|del|all(route[, middleware], handler) :: App
+
+Short hands for binding listeners with a specific HTTP method, or any HTTP method in case of `all`.
+
+```javascript
+server.get('/', function *() {
+  // ...
+});
+```
+
+### app.start(opts) :: Promise
+
+Start the server on the given `http` and/or `https` port, simply omit a key if you want only the one. All other options are passed directly to `https.createServer`. Returns a promise that resolves when the server has started listening.
+
+```javascript
+app.start({
+  http : 8080,
+  https: 3000,
+  key  : fs.readFileSync('/keys/example-key.pem'),
+  cert : fs.readFileSync('/keys/example-cert.pem')
+});
+```
+
+### app.stop() :: Promise
+
+Stop listening for new connections. Returns a promise that resolves when all open connections has ended.
+
+### app.use(fn) :: App
+
+Bind a global middleware function to the app that will be called for every request to the app, even if a handler cannot be found or throws an error. Useful for logging:
+
+```javascript
+app.use(function *(next) {
+  yield next();
+  console.log(this.req.url + ' ' + this.res.statusCode);
+});
+```
+
+Or if you are of the sort that don't like to call `res.end` everywhere you can optionally do this:
+
+```javascript
+app.use(function *(next) {
+  yield next();
+  this.res.end();
+});
+```
+
+### app.middleware :: App
+
+`app.middleware` is a separate app instance used for routing middleware, allowing for dynamic middleware based on request method and headers. Middleware handlers are bound in the same manner as normal handlers, but all receive a inner callback as their first argument.
+
+```javascript
+app.middleware.get('session', function *(next) {
+
+  // verify session
+
+  if (!session) {
+    this.res.writeHead('401', {Location: '/login'});
+    return this.res.end();
+  }
+
+  yield next();
+
+  if (session.hasChanged)
+    session.save();
+});
+```
+
+Middleware may also have middleware, which will be called before the main handler in the same manner as for normal routes. Apply with care! as there is nothing to stop you from defining a circular middleware dependency.
+
+### app.catch :: App
+
+`app.catch` is a separate app instance used for routing errors, allowing for dynamic error handlers based on request method and headers. Catch handlers are bound in the same manner as normal handlers.
+
+```javascript
+app.catch.all(404, function *() {
+  this.res.statusCode = 404;
+  this.res.end();
+});
+```
+
+By default if a request do not match any possible handler the `404` event is triggered, or if a handler throws an error the `500` event is called with the error as an additional argument.
+
+You may also directly call there handlers by throwing an [`HttpError`](https://www.npmjs.com/package/standard-http-error).
+
+```javascript
+app.get('/login?user&password', function *(user, password) {
+  if (!authorize(user, password))
+    throw new HttpError(403);
+
+  // ...
+});
+```
 
 ## Routing
 
-Creating routing entries are done through the server's `on` or `get`, `post`, `put`, `delete`, etc., methods.
+Each route consists of three parts, a `url`, `method` and `headers`, where the `url` further consists of a `path`, `query` and `fragment`. These parameters must all match in order for a request to trigger the handler bound on the route.
 
-### Server.METHOD(route[, middleware], handler)
+nnn uses its own syntax for specifying these routes, and may contain any of the following patterns:
 
-Creates a routing entry for `HTTP(S) <METHOD>` requests.
+### Regular Expressions
 
-```javascript
-server.get('/', function (req, res) {
-  // do stuff
-  res.end();
-});
-```
+Any part of the route may contain regular expressions. These expressions must match in order for the route to trigger.
 
-### Server.on(route[, middleware], handler)
-
-Creates a routing entry for any `HTTP(S)` request, however, this method has a lower precedence than any other routing method, and will therefore only trigger if it is not caught by a more specific method defined for the same route.
+Regular expressions may be specified in two ways, either by wrapping the expression in square braces (`[]`) or parentheses (`()`). The two environments differ in one key way, expressions wrapped in parentheses are captured and their result is passed to the handler, in order, as additional arguments.
 
 ```javascript
-server.on('/', function (req, res) {
-  // do stuff
-  res.end();
-});
+app.get('/entry/(\\d+)', function *(id) { ... });
+app.get('/entries?page=(\\d+)', function *(page) { ... });
 ```
 
-
-## Routing Variables and Queries
+The `app.all` method is implemented with a method of `[.*]`.
 
 ### Variables
 
-Routes beginning with `:` are can match anything till the next `/`. This variable will then be passed as a string argument to the handler function.
+Any part of the route may contain variables, denoted with asterisk (`*`). These variables may match anything, but may not cross segment boundaries when they occur in paths.
+
+The match of the variable is always passed to the handler function as an additional argument.
 
 ```javascript
-server.get('/index/:id', function (req, res, id) { ... });
+app.get('/user/*', function *(name) { ... });
 ```
 
-Multiple variables may be specified in a single route and each will be passed to the handler function in order.
+Queries without a value are interpreted as variable queries.
 
 ```javascript
-server.get('/index/:id/:name', function (req, res, id, name) { ... });
+app.get('/entries?search', function *(search) { ... });
+// same as
+app.get('/entries?search=*', function *(search) { ... });
 ```
 
-Variables have lower precedence than concrete routes and will not trigger if there is a more specific path defined for the same route. For example, if there existed a handler for the path `/index/lol/` and a handler for the path `/index/:id`, the first would take precedence over the latter if a request for the path `/index/lol` where to occur.
+### Globs
 
-### Queries
+Paths may also contain glob patterns, denoted with double asterisks (`**`). These patterns function exactly like variables, but may cross segment boundaries.
 
-Routes beginning with or containing `?` and `&` matches named query arguments. The values of these queries will then be passed to the handler function in order.
+The match of the glob is always passed to the handler function as an additional argument.
 
 ```javascript
-server.get('/index?search&page', function (req, res, search, page) { ... });
+app.get('/static/**', function *(resource) { ... });
 ```
 
-### Catch All
+### Brace Expansion
 
-Routes consisting only of `*` may match anything including `/`s. The match will be passed as a string argument to the handler function.
-
-```javascript
-server.on('/static/*', function (req, res, path) { ... });
-```
-
-Catch alls have the lowest precedence of all, and will only match if there is not any other more specific route matching the path.
-
-
-## Middleware
-
-All routing entries take an optional list of middleware to use. Middleware handlers are then called in left-to-right order before the main handler for the routing entry.
-
-```javascript
-server.get('/', ['require-session'], function (req, res) {});
-```
-
-Middleware handlers are all given a callback argument to call if the middleware is successful and must be passed the request and response objects.
-
-```javascript
-server.on('require-session', function (req, res, callback) {
-  // verify session ...
-
-  if (session){
-    req.session = session;
-    callback();
-  } else {
-    res.writeHead('401', {Location: '/login'});
-    res.end();
-  }
-});
-```
-
-Middleware may also be given a list of middleware, which will be called before the main handler in the same manner as for normal routing entries. Apply with care! as there is nothing to stop you from defining a circular middleware dependency.
-
-### Express
-
-Express middleware may be bound directly onto the router. Example using the `cookies` library.
-
-```javascript
-var Cookies = require('cookies');
-server.on('cookies', Cookies.express(keys));
-```
-
-### Middleware Arguments
-
-Middleware may also take routing arguments, and as with normal routing entries their value will be given as an extra argument to the handler function. Note that the callback function is always the last argument.
-
-```javascript
-server.on('access/:level', ['require-session'], function (req, res, level, callback) {
-  if (req.session.user.privileges < level)
-    return server.raise('401', req, res);
-  callback();
-});
-
-server.get('/admin', ['access/1337'], function (req, res) {
-  // return admin page
-});
-```
-
-## Error Handlers
-
-Error handlers are implemented the same way as middleware, except they do not have a callback.
-
-```javascript
-server.on('404', function (req, res) {
-  res.statusCode = 404;
-  res.end();
-});
-```
-
-By default if a request do not match any possible handler the `404` event is called, or if a handler throws an error the `500` event is called with the error as en additional argument. The above example is the default implementation for the `404` handler and a similar default implementation exists for the `500` handler, however, these defaults can easily be overwritten by redeclaring them.
-
-### Server.raise(route, request, response[, ...])
-
-You may also directly call there handlers by the raise function, passing any additional arguments along with it.
-
-```javascript
-server.on('/entries/:id', function (req, res, id) {
-  database.getEntry(id, function (err, entry) {
-    if (err)
-      return server.raise('500', req, res, err);
-    res.end(entry);
-  });
-});
-```
