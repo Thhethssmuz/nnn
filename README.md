@@ -159,7 +159,19 @@ app.get('/login?user&password', function *(user, password) {
 
 Each route consists of three parts, a `url`, `method` and `headers`, where the `url` further consists of a `path`, `query` and `fragment`. These parameters must all match in order for a request to trigger the handler bound on the route.
 
-nnn uses its own syntax for specifying these routes, and may contain any of the following patterns:
+```javascript
+app.on({
+  url    : '/entries?page#main',
+  method : 'GET',
+  headers: {'X-Requested-With': 'XMLHttpRequest'}
+}, function *() {
+  // will only trigger for a request for `/entries` that contains a `page`
+  // query, has a fragment of `main` and has a `X-Requested-With` header equal
+  // to `XMLHttpRequest`.
+});
+```
+
+Further, any of these parts may also contain any number of variadic patterns:
 
 ### Regular Expressions
 
@@ -200,7 +212,30 @@ The match of the glob is always passed to the handler function as an additional 
 
 ```javascript
 app.get('/static/**', function *(resource) { ... });
+app.get('/**.js', function *(jsFile) { ... });
 ```
 
 ### Brace Expansion
 
+Patterns wrapped in curly braces (`{}`) are expanded according to [these](https://www.npmjs.com/package/brace-expansion) rules, and then the handler is bound individually for each expanded pattern. Brace expansion patterns are not captured.
+
+```javascript
+app.get('/{log,logs}-(\\d+)', function *(logId) { ... });
+```
+
+### Precedence
+
+nnn will sort routes and try to always match the most specific match. The sorting rules are as follows:
+
+1. It does not contain any variable patterns
+2. It contains a regular expression
+3. It contains a variable
+4. It contains a glob
+
+These rules still leave some room for ambiguity, in these cases nnn will use which ever handler was defined first.
+
+```javascript
+app.get('/([0-9]+)', function *(id) { ... });
+app.get('/(\\d+)', function *(id) { ... }); // will never trigger
+app.get('/123', function *(id) { ... }); // will always take precedence
+```
