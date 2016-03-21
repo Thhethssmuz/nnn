@@ -177,7 +177,7 @@ Further, any of these parts may also contain any number of variadic patterns:
 
 Any part of the route may contain regular expressions. These expressions must match in order for the route to trigger.
 
-Regular expressions may be specified in two ways, either by wrapping the expression in square braces (`[]`) or parentheses (`()`). The two environments differ in one key way, expressions wrapped in parentheses are captured and their result is passed to the handler, in order, as additional arguments.
+Regular expressions may be specified in two ways, either by wrapping the expression in square braces (`[]`) or parentheses (`()`). The two environments differ in one key way, expressions wrapped in parentheses are captured and their result is passed to the handler, in order, as an additional argument.
 
 ```javascript
 app.get('/entry/(\\d+)', function *(id) { ... });
