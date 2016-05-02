@@ -3,7 +3,7 @@
   "name": "nnn",
   "description": "nnn",
   "version": "2.0.0",
-  "main": "./lib/server.js",
+  "main": "./lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Thhethssmuz/nnn.git"
