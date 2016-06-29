@@ -60,7 +60,7 @@ test('http dispatch', function *(t) {
   t.eq(JSON.parse(r3.body), { handler: '/test?page', args: ['1337'] }, '/test?page=1337 matched');
 
   let r4 = yield request('http://localhost:8080/lol', {timeout: 1000});
-  t.eq(JSON.parse(r4.body), { catch: '404', args: [] }, '/lol caught by 404 handler');
+  t.eq(JSON.parse(r4.body), { catch: '404', args: [{code: 404, message: 'Not Found', name: 'HttpError'}] }, '/lol caught by 404 handler');
 
   let r5 = yield request('http://localhost:8080/throws', {timeout: 1000});
   t.eq(JSON.parse(r5.body), { catch: '500', err: 'some error' }, '/throws caught by error handler');

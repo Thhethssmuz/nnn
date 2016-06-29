@@ -183,18 +183,18 @@ test('not found', function *(t) {
   yield makeTest(t, {}, [
     { catch: { url: '404', method: 'GET',  headers: {} },
       match: [
-        { url: '/a', method: 'GET', headers: {}, args: [] }
+        { url: '/a', method: 'GET', headers: {}, args: [/Not Found/] }
       ]
     }, {
       catch: { url: '404', method: 'POST', headers: {} },
       match: [
-        { url: '/a', method: 'POST', headers: {}, args: [] }
+        { url: '/a', method: 'POST', headers: {}, args: [/Not Found/] }
       ]
     }, {
       catch: { url: '404', method: '[.*]', headers: {} },
       match: [
-        { url: '/a', method: 'PUT',    headers: {}, args: [] },
-        { url: '/a', method: 'DELETE', headers: {}, args: [] }
+        { url: '/a', method: 'PUT',    headers: {}, args: [/Not Found/] },
+        { url: '/a', method: 'DELETE', headers: {}, args: [/Not Found/] }
       ]
     }
   ]);
@@ -254,7 +254,7 @@ test('segments', function *(t) {
     }, {
       catch  : { url: '404', method: 'GET', headers: {} },
       match  : [
-        { url: '/b', method: 'GET', headers: {}, args: [] }
+        { url: '/b', method: 'GET', headers: {}, args: [/Not Found/] }
       ]
     }
   ]);
@@ -285,8 +285,8 @@ test('queries', function *(t) {
     }, {
       catch  : { url: '404', method: 'GET', headers: {} },
       match  : [
-        { url: '?b=2',     method: 'GET', headers: {}, args: [] },
-        { url: '?b=2&d=4', method: 'GET', headers: {}, args: [] }
+        { url: '?b=2',     method: 'GET', headers: {}, args: [/Not Found/] },
+        { url: '?b=2&d=4', method: 'GET', headers: {}, args: [/Not Found/] }
       ]
     }
   ]);
@@ -321,7 +321,7 @@ test('fragments', function *(t) {
     }, {
       catch  : { url: '404', method: 'GET', headers: {} },
       match  : [
-        { url: '', method: 'GET', headers: {}, args: [] }
+        { url: '', method: 'GET', headers: {}, args: [/Not Found/] }
       ]
     }
   ]);
