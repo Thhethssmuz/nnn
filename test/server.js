@@ -16,7 +16,7 @@ test('start/stop', function *(t) {
   yield t.notThrows(request('http://localhost:8080'), 'server accepts request');
   yield t.notThrows(app.stop(), 'server stop');
   yield t.throws(request('http://localhost:8080'), /ECONNREFUSED/, 'connection refused');
-  yield t.throws(app.stop(), /Not running/, 'cannot stop not running server');
+  yield t.throws(app.stop(), /Not running/i, 'cannot stop not running server');
 });
 
 test('http dispatch', function *(t) {
