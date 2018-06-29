@@ -457,3 +457,30 @@ test('trimming', function *(t) {
     }
   ]);
 });
+
+
+test('edge-case 1', function *(t) {
+  yield makeTest(t, {}, [
+    { handler: { url: '/a/*/*', method: 'GET', headers: {} },
+      match  : [
+        { url: '/a/a/', method: 'GET', headers: {}, args: ['a', ''] },
+        { url: '/a/a/a', method: 'GET', headers: {}, args: ['a', 'a'] },
+        { url: '/a/a/b', method: 'GET', headers: {}, args: ['a', 'b'] }
+      ]
+    }, {
+      handler: { url: '/a/b/*', method: 'GET', headers: {} },
+      match  : [
+        { url: '/a/b/', method: 'GET', headers: {}, args: [''] },
+        { url: '/a/b/c', method: 'GET', headers: {}, args: ['c'] },
+        { url: '/a/b/d', method: 'GET', headers: {}, args: ['d'] }
+      ]
+    }, {
+      catch  : { url: '404', method: 'GET', headers: {} },
+      match  : [
+        { url: '/a/a', method: 'GET', headers: {}, args: [/Not Found/] },
+        { url: '/a/b', method: 'GET', headers: {}, args: [/Not Found/] },
+        { url: '/a/b?c', method: 'GET', headers: {}, args: [/Not Found/] }
+      ]
+    }
+  ]);
+});
