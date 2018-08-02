@@ -12,10 +12,11 @@ test('start/stop', function *(t) {
 
   yield t.throws(() => app.start(), /missing options/, 'missing options');
   yield t.throws(() => app.start({}), /missing server config/, 'missing config');
-  yield t.notThrows(app.start({ http: 8080 }), 'server start');
-  yield t.notThrows(request('http://localhost:8080'), 'server accepts request');
+  yield t.notThrows(app.start({http: 0}), 'server start');
+  let port = app.httpServer.address().port;
+  yield t.notThrows(request(`http://localhost:${port}`), 'server accepts request');
   yield t.notThrows(app.stop(), 'server stop');
-  yield t.throws(request('http://localhost:8080'), /ECONNREFUSED/, 'connection refused');
+  yield t.throws(request(`http://localhost:${port}`), /ECONNREFUSED/, 'connection refused');
   yield t.throws(app.stop(), /Not running/i, 'cannot stop not running server');
 });
 
@@ -48,24 +49,25 @@ test('http dispatch', function *(t) {
     this.res.end(JSON.stringify({ catch: '500', err: err.message }));
   });
 
-  yield app.start({ http: 8080 });
+  yield app.start({http: 0});
+  let port = app.httpServer.address().port;
 
-  let r1 = yield request('http://localhost:8080', {timeout: 1000});
+  let r1 = yield request(`http://localhost:${port}`, {timeout: 1000});
   t.eq(JSON.parse(r1.body), { handler: '/', args: [] }, 'root handler matched');
 
-  let r2 = yield request('http://localhost:8080/test/123', {timeout: 1000});
+  let r2 = yield request(`http://localhost:${port}/test/123`, {timeout: 1000});
   t.eq(JSON.parse(r2.body), { handler: '/test/(\\d+)', args: ['123'] }, '/test/123 matched');
 
-  let r3 = yield request('http://localhost:8080/test?page=1337', {timeout: 1000});
+  let r3 = yield request(`http://localhost:${port}/test?page=1337`, {timeout: 1000});
   t.eq(JSON.parse(r3.body), { handler: '/test?page', args: ['1337'] }, '/test?page=1337 matched');
 
-  let r4 = yield request('http://localhost:8080/lol', {timeout: 1000});
+  let r4 = yield request(`http://localhost:${port}/lol`, {timeout: 1000});
   t.eq(JSON.parse(r4.body), { catch: '404', args: [{code: 404, message: 'Not Found', name: 'HttpError'}] }, '/lol caught by 404 handler');
 
-  let r5 = yield request('http://localhost:8080/throws', {timeout: 1000});
+  let r5 = yield request(`http://localhost:${port}/throws`, {timeout: 1000});
   t.eq(JSON.parse(r5.body), { catch: '500', err: 'some error' }, '/throws caught by error handler');
 
-  let r6 = yield request('http://localhost:8080/static/my/resource', {timeout: 1000});
+  let r6 = yield request(`http://localhost:${port}/static/my/resource`, {timeout: 1000});
   t.eq(JSON.parse(r6.body), { handler: '/static/**', args: ['my/resource'] }, '/static matched');
 
   yield app.stop();
@@ -115,9 +117,10 @@ test('https', function *(t) {
     this.res.end();
   });
 
-  yield app.start({ https: 3000, key, cert });
+  yield app.start({https: 0, key, cert});
+  let port = app.httpsServer.address().port;
   yield t.notThrows(
-    request('https://localhost:3000', {timeout: 1000, rejectUnauthorized: false}),
+    request(`https://localhost:${port}`, {timeout: 1000, rejectUnauthorized: false}),
     'server accepts request'
   );
   yield app.stop();
@@ -127,8 +130,9 @@ test('app failures', function *(t) {
   t.plan(4);
 
   let app1 = new App();
-  yield app1.start({ http: 8080 });
-  let r1 = yield request('http://localhost:8080', {timeout: 1000});
+  yield app1.start({http: 0});
+  let port1 = app1.httpServer.address().port;
+  let r1 = yield request(`http://localhost:${port1}`, {timeout: 1000});
   t.eq(r1.statusCode, 500, 'no error handler throws out');
   yield app1.stop();
 
@@ -136,8 +140,9 @@ test('app failures', function *(t) {
   app2.catch.all(500, function *() {
     throw new Error('error');
   });
-  yield app2.start({ http: 8080 });
-  let r2 = yield request('http://localhost:8080', {timeout: 1000});
+  yield app2.start({http: 0});
+  let port2 = app2.httpServer.address().port;
+  let r2 = yield request(`http://localhost:${port2}`, {timeout: 1000});
   t.eq(r2.statusCode, 500, 'error in error handler throws out');
   yield app2.stop();
 
@@ -148,8 +153,9 @@ test('app failures', function *(t) {
     });
     this.res.end();
   });
-  yield app3.start({ http: 8080 });
-  let r3 = yield request('http://localhost:8080', {timeout: 1000});
+  yield app3.start({http: 0});
+  let port3 = app3.httpServer.address().port;
+  let r3 = yield request(`http://localhost:${port3}`, {timeout: 1000});
   t.eq(r3.statusCode, 200, 'response ok');
   yield app3.stop();
 });
