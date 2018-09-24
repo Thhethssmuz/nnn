@@ -158,23 +158,23 @@ test('case conflicts', function *(t) {
   yield eq({url: '/', method: 'a*' }, {url: '/', method: 'A*' }, true);
   yield ne({url: '/', method: 'a*' }, {url: '/', method: 'A*' }, false);
 
-  yield eq({url: '/', headers: {'a': 'a'  }}, {url: '/', headers: {'a': 'A'  }}, true);
-  yield ne({url: '/', headers: {'a': 'a'  }}, {url: '/', headers: {'a': 'A'  }}, false);
-  yield eq({url: '/', headers: {'a': '[a]'}}, {url: '/', headers: {'a': '[A]'}}, true);
-  yield ne({url: '/', headers: {'a': '[a]'}}, {url: '/', headers: {'a': '[A]'}}, false);
-  yield eq({url: '/', headers: {'a': '(a)'}}, {url: '/', headers: {'a': '(A)'}}, true);
-  yield ne({url: '/', headers: {'a': '(a)'}}, {url: '/', headers: {'a': '(A)'}}, false);
-  yield eq({url: '/', headers: {'a': 'a*' }}, {url: '/', headers: {'a': 'A*' }}, true);
-  yield ne({url: '/', headers: {'a': 'a*' }}, {url: '/', headers: {'a': 'A*' }}, false);
+  yield eq({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'A'  }}, true);
+  yield ne({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'A'  }}, false);
+  yield eq({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[A]'}}, true);
+  yield ne({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[A]'}}, false);
+  yield eq({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(A)'}}, true);
+  yield ne({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(A)'}}, false);
+  yield eq({url: '/', header: {'a': 'a*' }}, {url: '/', header: {'a': 'A*' }}, true);
+  yield ne({url: '/', header: {'a': 'a*' }}, {url: '/', header: {'a': 'A*' }}, false);
 
-  yield eq({url: '/', headers: 'a'  }, {url: '/', headers: 'A'  }, true);
-  yield ne({url: '/', headers: 'a'  }, {url: '/', headers: 'A'  }, false);
-  yield eq({url: '/', headers: '[a]'}, {url: '/', headers: '[A]'}, true);
-  yield ne({url: '/', headers: '[a]'}, {url: '/', headers: '[A]'}, false);
-  yield eq({url: '/', headers: '(a)'}, {url: '/', headers: '(A)'}, true);
-  yield ne({url: '/', headers: '(a)'}, {url: '/', headers: '(A)'}, false);
-  yield eq({url: '/', headers: 'a*' }, {url: '/', headers: 'A*' }, true);
-  yield ne({url: '/', headers: 'a*' }, {url: '/', headers: 'A*' }, false);
+  yield eq({url: '/', header: 'a'  }, {url: '/', header: 'A'  }, true);
+  yield ne({url: '/', header: 'a'  }, {url: '/', header: 'A'  }, false);
+  yield eq({url: '/', header: '[a]'}, {url: '/', header: '[A]'}, true);
+  yield ne({url: '/', header: '[a]'}, {url: '/', header: '[A]'}, false);
+  yield eq({url: '/', header: '(a)'}, {url: '/', header: '(A)'}, true);
+  yield ne({url: '/', header: '(a)'}, {url: '/', header: '(A)'}, false);
+  yield eq({url: '/', header: 'a*' }, {url: '/', header: 'A*' }, true);
+  yield ne({url: '/', header: 'a*' }, {url: '/', header: 'A*' }, false);
 });
 
 test('trim conflicts', function *(t) {
