@@ -99,7 +99,7 @@ test('duplicate handlers', function *(t) {
 });
 
 test('case conflicts', function *(t) {
-  t.plan(58);
+  t.plan(83);
 
   let show = r => (r.method || 'ALL') + ' ' + r.url + (r.header ? ' ' + JSON.stringify(r.header) : '');
   let eq = (x, y, c) => {
@@ -122,6 +122,12 @@ test('case conflicts', function *(t) {
   yield eq({url: '/a**' }, {url: '/A**' }, true);
   yield ne({url: '/a**' }, {url: '/A**' }, false);
 
+  yield eq({url: '/a/b'}, {url: '/A/b'}, true);
+  yield ne({url: '/a/b'}, {url: '/A/b'}, false);
+  yield ne({url: '/a/b'}, {url: '/a/c'}, true);
+  yield eq({url: '/a/b'}, {url: '/A/c'}, true);
+  yield ne({url: '/a/b'}, {url: '/A/c'}, false);
+
   yield eq({url: '?a=b'  }, {url: '?a=B'  }, true);
   yield ne({url: '?a=b'  }, {url: '?a=B'  }, false);
   yield eq({url: '?a=[b]'}, {url: '?a=[B]'}, true);
@@ -131,6 +137,12 @@ test('case conflicts', function *(t) {
   yield eq({url: '?a=b*' }, {url: '?a=B*' }, true);
   yield ne({url: '?a=b*' }, {url: '?a=B*' }, false);
 
+  yield eq({url: '?a=b&c'}, {url: '?a=B&c'}, true);
+  yield ne({url: '?a=b&c'}, {url: '?a=B&c'}, false);
+  yield ne({url: '?a=b&c'}, {url: '?a=b&d'}, true);
+  yield eq({url: '?a=b&c'}, {url: '?a=B&d'}, true);
+  yield ne({url: '?a=b&c'}, {url: '?a=B&d'}, false);
+
   yield eq({url: '?a'  }, {url: '?A'  }, true);
   yield ne({url: '?a'  }, {url: '?A'  }, false);
   yield eq({url: '?[a]'}, {url: '?[A]'}, true);
@@ -139,6 +151,12 @@ test('case conflicts', function *(t) {
   yield ne({url: '?(a)'}, {url: '?(A)'}, false);
   yield eq({url: '?a*' }, {url: '?A*' }, true);
   yield ne({url: '?a*' }, {url: '?A*' }, false);
+
+  yield eq({url: '?a&b'}, {url: '?A&b'}, true);
+  yield ne({url: '?a&b'}, {url: '?A&b'}, false);
+  yield ne({url: '?a&b'}, {url: '?a&c'}, true);
+  yield eq({url: '?a&b'}, {url: '?A&c'}, true);
+  yield ne({url: '?a&b'}, {url: '?A&c'}, false);
 
   yield eq({url: '#a'  }, {url: '#A'  }, true);
   yield ne({url: '#a'  }, {url: '#A'  }, false);
@@ -167,6 +185,12 @@ test('case conflicts', function *(t) {
   yield eq({url: '/', header: {'a': 'a*' }}, {url: '/', header: {'a': 'A*' }}, true);
   yield ne({url: '/', header: {'a': 'a*' }}, {url: '/', header: {'a': 'A*' }}, false);
 
+  yield eq({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'b': 'b'}}, true);
+  yield ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'b': 'b'}}, false);
+  yield ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'a', 'c': 'c'}}, true);
+  yield eq({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'c': 'c'}}, true);
+  yield ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'c': 'c'}}, false);
+
   yield eq({url: '/', header: 'a'  }, {url: '/', header: 'A'  }, true);
   yield ne({url: '/', header: 'a'  }, {url: '/', header: 'A'  }, false);
   yield eq({url: '/', header: '[a]'}, {url: '/', header: '[A]'}, true);
@@ -175,6 +199,12 @@ test('case conflicts', function *(t) {
   yield ne({url: '/', header: '(a)'}, {url: '/', header: '(A)'}, false);
   yield eq({url: '/', header: 'a*' }, {url: '/', header: 'A*' }, true);
   yield ne({url: '/', header: 'a*' }, {url: '/', header: 'A*' }, false);
+
+  yield eq({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'b']  }, true);
+  yield ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'b']  }, false);
+  yield ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['a', 'c']  }, true);
+  yield eq({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'c']  }, true);
+  yield ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'c']  }, false);
 });
 
 test('trim conflicts', function *(t) {
