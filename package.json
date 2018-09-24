@@ -2,7 +2,7 @@
   "author": "Svein Inge Albrigtsen",
   "name": "nnn",
   "description": "nnn",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
