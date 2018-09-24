@@ -484,3 +484,22 @@ test('edge-case 1', function *(t) {
     }
   ]);
 });
+test('edge-case 2', function *(t) {
+  yield makeTest(t, {trim: true, case: true}, [
+    { handler: { url: '/?a&b', method: 'GET', headers: {} },
+      match  : [
+        { url: '/?a=1&b=2', method: 'GET', headers: {}, args: ['1', '2'] },
+      ]
+    }, {
+      handler: { url: '/?a&c', method: 'GET', headers: {} },
+      match  : [
+        { url: '/?a=1&c=3', method: 'GET', headers: {}, args: ['1', '3'] },
+      ]
+    }, {
+      catch  : { url: '404', method: 'GET', headers: {} },
+      match  : [
+        { url: '/?a=1', method: 'GET', headers: {}, args: [/Not Found/] },
+      ]
+    }
+  ]);
+});
