@@ -238,7 +238,7 @@ test('trace', function *(t) {
 
     t.eq(routes[0], {method: ['GET'], segment: ['', '']}, '1: GET  /');
     t.eq(routes[1], {method: ['GET'], segment: ['', 'a']}, '2: GET  /a');
-    t.eq(routes[2], {method: ['POST'], segment: ['', 'b']}, '3: POST  /b');
+    t.eq(routes[2], {method: ['POST'], segment: ['', 'b']}, '3: POST /b');
     t.eq(routes[3], {method: ['PUT'], segment: ['', 'b', '*'], query: [['c', 'd']]}, '4: PUT  /b/*?c=d');
     t.eq(routes[4], {method: ['GET'], segment: ['', 'b', '*']}, '5: GET  /b/*');
     t.eq(routes[5], {method: ['[.*]'], segment: ['', '**']}, '6: ALL  /**');
