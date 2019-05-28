@@ -168,37 +168,71 @@ test('middleware not found', async function (t) {
 
   await app.dispatch({url: '/', method: 'GET', headers: {}});
 });
-test('middleware short circuit', async function (t) {
-  t.plan(4);
+test('middleware short circuit', async function () {
+  const errors = [
+    {plan: 1, name: 'global 1'},
+    {plan: 3, name: 'global 2'},
+    {plan: 5, name: 'middleware a'},
+    {plan: 6, name: 'middleware b'},
+    {plan: 7, name: 'error 400'},
+    {plan: 9, name: 'ok'}
+  ];
 
-  const CTX = function (req, res) {
-    this.req = req;
-    this.res = res;
-    this.test = 0;
-  };
+  for (const [i, {plan, name}] of errors.entries()) {
+    await this.test(name, async function (t) {
+      const app = new App();
+      t.plan(plan);
 
-  const app = new App({context: CTX});
-  app.use(async function (next) {
-    t.eq(this.test += 1, 1, 'global middleware');
-    await next();
-    t.ok(true, 'global middleware finishes execution after error');
-  });
-  app.middleware.all('a', async function (next) {
-    t.eq(this.test += 1, 2, 'middleware');
-    await next();
-    t.fail('middleware did not short circuit');
-  });
-  app.all('/', ['a', 'b'], async function () {
-    t.fail('handler executed');
-  });
-  app.catch.all(500, async function (err) {
-    t.ok(
-      /No middleware handler/.test(err.message), 'catch middleware not found');
-  });
-  app.finalize();
+      app.use(async function (next) {
+        if (i < 1)
+          throw Object.assign(new Error(), {code: 'global 1'});
+        t.pass('global 1 start');
+        await next();
+        t.pass('global 1 end');
+      });
+      app.use(async function (next) {
+        if (i < 2)
+          throw Object.assign(new Error(), {code: 'global 2'});
+        t.pass('global 2 start');
+        await next();
+        t.pass('global 2 end');
+      });
 
-  await app.dispatch({url: '/', method: 'GET', headers: {}});
+      app.middleware.on('a', async function (next) {
+        if (i < 3)
+          throw Object.assign(new Error(), {code: 'middleware a'});
+        t.pass('middleware a start');
+        await next();
+        t.pass('middleware a end');
+      });
+      app.middleware.on('b', async function (next) {
+        if (i < 4)
+          throw Object.assign(new Error(), {code: 'middleware b'});
+        t.pass('middleware b start');
+        await next();
+        t.pass('middleware b end');
+      });
+
+      app.catch.on(400, async function () {
+        throw Object.assign(new Error(), {code: 'error 400'});
+      });
+      app.catch.on(500, async function (err) {
+        t.eq(err.code, name, `caught error from '${name}'`);
+      });
+
+      app.on('/', ['a', 'b'], async function () {
+        if (i < 5)
+          throw new App.HttpError(400);
+        t.pass('error 400 ok');
+      });
+
+      app.finalize();
+
+      await app.dispatch({url: '/', method: 'GET', headers: {}});
+    });
+  }
 });
+
 
 test('not found', async function (t) {
   await makeTest(t, {}, [
