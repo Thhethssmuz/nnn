@@ -1,9 +1,9 @@
 'use strict';
 
-const test = require('bandage');
+const test = require('awfltst');
 const parser = require('../parser');
 
-test('paths', function *(t) {
+test('paths', async function (t) {
 
   t.plan(8);
 
@@ -73,7 +73,7 @@ test('paths', function *(t) {
     match  : undefined
   }], 'glob segment');
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     return parser.parse('***');
   }, SyntaxError, 'illegal *** pattern');
 
@@ -114,7 +114,7 @@ test('paths', function *(t) {
   }], 'multiple');
 });
 
-test('queries', function *(t) {
+test('queries', async function (t) {
 
   t.plan(12);
 
@@ -207,7 +207,7 @@ test('queries', function *(t) {
     }
   }), 'variable query shorthand');
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     return parser.parse('?test=**');
   }, SyntaxError, 'glob pattern illegal in queries');
 
@@ -276,7 +276,7 @@ test('queries', function *(t) {
     }
   }), 'variable query argument');
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     return parser.parse('?**');
   }, SyntaxError, 'glob pattern illegal in query arguments');
 
@@ -357,7 +357,7 @@ test('queries', function *(t) {
   }]), 'multiple queries');
 });
 
-test('fragments', function *(t) {
+test('fragments', async function (t) {
 
   t.plan(6);
 
@@ -401,12 +401,12 @@ test('fragments', function *(t) {
     org    : '*'
   }), 'variable fragment');
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     return parser.parse('#**');
   }, SyntaxError, 'glob pattern illegal in fragment');
 });
 
-test('method', function *(t) {
+test('method', async function (t) {
 
   t.plan(6);
 
@@ -445,12 +445,12 @@ test('method', function *(t) {
     org    : '*'
   }, 'variable method');
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     return parser.parse('**', {startRule: 'method'});
   }, SyntaxError, 'glob pattern illegal in method');
 });
 
-test('mixed patterns', function *(t) {
+test('mixed patterns', async function (t) {
 
   t.plan(1);
 
@@ -466,7 +466,7 @@ test('mixed patterns', function *(t) {
   }], 'mixed patterns');
 });
 
-test('reserved', function *(t) {
+test('reserved', async function (t) {
 
   let legal = (pattern, msg) => {
     try {
@@ -529,33 +529,33 @@ test('reserved', function *(t) {
   legal('a[b](c)*d**', 'mixing patterns');
 });
 
-test('start rules', function *(t) {
+test('start rules', async function (t) {
 
   t.plan(7);
 
-  yield t.notThrows(function *() { parser.parse(''); }, 'default');
+  await t.notThrows(async function () { parser.parse(''); }, 'default');
 
   for (let startRule of ['route','pair','key','value','method']) {
-    yield t.notThrows(function *() {
+    await t.notThrows(async function () {
       parser.parse('', {startRule});
     }, startRule);
   }
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     parser.parse('', {startRule: 'lol'});
   }, 'invalid start rule');
 });
 
-test('inputs', function *(t) {
+test('inputs', async function (t) {
 
   t.plan(6);
 
-  yield t.notThrows(function *() {
+  await t.notThrows(async function () {
     parser.parse('string')
   }, '"string" is a valid input');
 
   for (let x of [undefined, null, 1, [], {}]) {
-    yield t.throws(function *() {
+    await t.throws(async function () {
       parser.parse(x);
     }, JSON.stringify(x) + ' is not a valid input');
   }

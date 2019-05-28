@@ -10,8 +10,8 @@
   },
   "scripts": {
     "build": "pegjs --allowed-start-rules route,pair,key,value,method parser/grammar.pegjs parser/index.js",
-    "test": "bndg test/*.js | tap-spec",
-    "coverage": "istanbul cover bndg test/*.js && cat coverage/lcov.info"
+    "test": "awfltst test/*.js",
+    "coverage": "istanbul cover awfltst test/*.js && cat coverage/lcov.info"
   },
   "dependencies": {
     "brace-expansion": "^1.1.11",
@@ -19,11 +19,10 @@
     "standard-http-error": "^2.0.1"
   },
   "devDependencies": {
-    "bandage": "^0.5.0",
-    "co-request": "^1.0.0",
-    "istanbul": "^0.4.2",
+    "awfltst": "^0.1.2",
+    "istanbul": "^0.4.5",
     "pegjs": "^0.9.0",
-    "tap-spec": "^4.0.2"
+    "request": "^2.88.0"
   },
   "license": "MIT"
 }

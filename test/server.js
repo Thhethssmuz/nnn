@@ -1,79 +1,80 @@
 'use strict';
 
 const App = require('../lib');
-const test = require('bandage');
-const request = require('co-request');
+const test = require('awfltst');
+const util = require('util');
+const request = util.promisify(require('request'));
 
-test('start/stop', function *(t) {
+test('start/stop', async function (t) {
   t.plan(7);
 
   let app = new App();
-  app.on('/', function *() { this.res.end(); });
+  app.on('/', async function () { this.res.end(); });
 
-  yield t.throws(() => app.start(), /missing options/, 'missing options');
-  yield t.throws(() => app.start({}), /missing server config/, 'missing config');
-  yield t.notThrows(app.start({http: 0}), 'server start');
+  await t.throws(() => app.start(), /missing options/, 'missing options');
+  await t.throws(() => app.start({}), /missing server config/, 'missing config');
+  await t.notThrows(app.start({http: 0}), 'server start');
   let port = app.httpServer.address().port;
-  yield t.notThrows(request(`http://localhost:${port}`), 'server accepts request');
-  yield t.notThrows(app.stop(), 'server stop');
-  yield t.throws(request(`http://localhost:${port}`), /ECONNREFUSED/, 'connection refused');
-  yield t.throws(app.stop(), /Not running/i, 'cannot stop not running server');
+  await t.notThrows(request(`http://localhost:${port}`), 'server accepts request');
+  await t.notThrows(app.stop(), 'server stop');
+  await t.throws(request(`http://localhost:${port}`), /ECONNREFUSED/, 'connection refused');
+  await t.throws(app.stop(), /Not running/i, 'cannot stop not running server');
 });
 
-test('http dispatch', function *(t) {
+test('http dispatch', async function (t) {
   t.plan(6);
 
   let app = new App();
 
-  app.on('/', function *() {
+  app.on('/', async function () {
     this.res.end(JSON.stringify({ handler: '/', args: Array.from(arguments) }));
   });
-  app.on('/test/(\\d+)', function *(id) {
+  app.on('/test/(\\d+)', async function (id) {
     this.res.end(JSON.stringify({ handler: '/test/(\\d+)', args: Array.from(arguments) }));
   });
-  app.on('/test?page', function *(page) {
+  app.on('/test?page', async function (page) {
     this.res.end(JSON.stringify({ handler: '/test?page', args: Array.from(arguments) }));
   });
-  app.on('/throws', function *() {
+  app.on('/throws', async function () {
     throw new Error('some error');
   });
-  app.on('/static/**', function *(path) {
+  app.on('/static/**', async function (path) {
     this.res.end(JSON.stringify({ handler: '/static/**', args: Array.from(arguments) }));
   });
-  app.catch.on(404, function *() {
+  app.catch.on(404, async function () {
     this.res.statusCode = 404;
     this.res.end(JSON.stringify({ catch: '404', args: Array.from(arguments) }));
   });
-  app.catch.on(500, function *(err) {
+  app.catch.on(500, async function (err) {
     this.res.statusCode = 500;
     this.res.end(JSON.stringify({ catch: '500', err: err.message }));
   });
 
-  yield app.start({http: 0});
+  await app.start({http: 0});
   let port = app.httpServer.address().port;
 
-  let r1 = yield request(`http://localhost:${port}`, {timeout: 1000});
+  let r1 = await request(`http://localhost:${port}`, {timeout: 1000});
   t.eq(JSON.parse(r1.body), { handler: '/', args: [] }, 'root handler matched');
 
-  let r2 = yield request(`http://localhost:${port}/test/123`, {timeout: 1000});
+  let r2 = await request(`http://localhost:${port}/test/123`, {timeout: 1000});
   t.eq(JSON.parse(r2.body), { handler: '/test/(\\d+)', args: ['123'] }, '/test/123 matched');
 
-  let r3 = yield request(`http://localhost:${port}/test?page=1337`, {timeout: 1000});
+  let r3 = await request(`http://localhost:${port}/test?page=1337`, {timeout: 1000});
   t.eq(JSON.parse(r3.body), { handler: '/test?page', args: ['1337'] }, '/test?page=1337 matched');
 
-  let r4 = yield request(`http://localhost:${port}/lol`, {timeout: 1000});
+  let r4 = await request(`http://localhost:${port}/lol`, {timeout: 1000});
   t.eq(JSON.parse(r4.body), { catch: '404', args: [{code: 404, message: 'Not Found', name: 'HttpError'}] }, '/lol caught by 404 handler');
 
-  let r5 = yield request(`http://localhost:${port}/throws`, {timeout: 1000});
+  let r5 = await request(`http://localhost:${port}/throws`, {timeout: 1000});
   t.eq(JSON.parse(r5.body), { catch: '500', err: 'some error' }, '/throws caught by error handler');
 
-  let r6 = yield request(`http://localhost:${port}/static/my/resource`, {timeout: 1000});
+  let r6 = await request(`http://localhost:${port}/static/my/resource`, {timeout: 1000});
   t.eq(JSON.parse(r6.body), { handler: '/static/**', args: ['my/resource'] }, '/static matched');
 
-  yield app.stop();
+  await app.stop();
 });
 
-test('https', function *(t) {
+test('https', async function (t) {
   t.plan(2);
 
   // 1024 bit test key
@@ -112,50 +113,50 @@ test('https', function *(t) {
     '-----END CERTIFICATE-----\n';
 
   let app = new App();
-  app.on('/', function *() {
+  app.on('/', async function () {
     t.ok(true, 'handler called');
     this.res.end();
   });
 
-  yield app.start({https: 0, key, cert});
+  await app.start({https: 0, key, cert});
   let port = app.httpsServer.address().port;
-  yield t.notThrows(
+  await t.notThrows(
     request(`https://localhost:${port}`, {timeout: 1000, rejectUnauthorized: false}),
     'server accepts request'
   );
-  yield app.stop();
+  await app.stop();
 });
 
-test('app failures', function *(t) {
+test('app failures', async function (t) {
   t.plan(4);
 
   let app1 = new App();
-  yield app1.start({http: 0});
+  await app1.start({http: 0});
   let port1 = app1.httpServer.address().port;
-  let r1 = yield request(`http://localhost:${port1}`, {timeout: 1000});
+  let r1 = await request(`http://localhost:${port1}`, {timeout: 1000});
   t.eq(r1.statusCode, 500, 'no error handler throws out');
-  yield app1.stop();
+  await app1.stop();
 
   let app2 = new App();
-  app2.catch.all(500, function *() {
+  app2.catch.all(500, async function () {
     throw new Error('error');
   });
-  yield app2.start({http: 0});
+  await app2.start({http: 0});
   let port2 = app2.httpServer.address().port;
-  let r2 = yield request(`http://localhost:${port2}`, {timeout: 1000});
+  let r2 = await request(`http://localhost:${port2}`, {timeout: 1000});
   t.eq(r2.statusCode, 500, 'error in error handler throws out');
-  yield app2.stop();
+  await app2.stop();
 
   let app3 = new App();
-  app3.use(function *(next) {
-    yield next().catch(() => {
+  app3.use(async function (next) {
+    await next().catch(() => {
       t.ok(true, 'throw out caught in global middleware');
     });
     this.res.end();
   });
-  yield app3.start({http: 0});
+  await app3.start({http: 0});
   let port3 = app3.httpServer.address().port;
-  let r3 = yield request(`http://localhost:${port3}`, {timeout: 1000});
+  let r3 = await request(`http://localhost:${port3}`, {timeout: 1000});
   t.eq(r3.statusCode, 200, 'response ok');
-  yield app3.stop();
+  await app3.stop();
 });

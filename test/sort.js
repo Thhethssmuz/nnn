@@ -1,6 +1,6 @@
 'use strict';
 
-const test = require('bandage');
+const test = require('awfltst');
 const sort = require('../lib/sort');
 const trace = require('../lib/build').trace;
 
@@ -14,7 +14,7 @@ const compare = function (t, routeX, routeY, expected) {
 };
 
 
-test('sort asc', function *(t) {
+test('sort asc', async function (t) {
 
   let xs = [ { type: 'segment', pattern: 'conditional', org: '[a]', order: NaN } ];
   let ys = [ { type: 'segment', pattern: 'conditional', org: '[b]', order: 0   } ];
@@ -28,7 +28,7 @@ test('sort asc', function *(t) {
   t.eq(sort.type(ys, xs), -1, 'retain definition order');
 });
 
-test('sort recursive', function *(t) {
+test('sort recursive', async function (t) {
   let xs = [ { type: 'segment', pattern: 'absolute', org: 'a' },
              { type: 'segment', pattern: 'null' } ];
   let ys = [ { type: 'segment', pattern: 'absolute', org: 'a' } ]
@@ -40,7 +40,7 @@ test('sort recursive', function *(t) {
 });
 
 
-test('sort segments', function *(t) {
+test('sort segments', async function (t) {
   let xs, ys;
 
   xs = [ { type: 'segment', pattern: 'absolute', org: 'x', match: 'x', order: 0 } ];
@@ -63,7 +63,7 @@ test('sort segments', function *(t) {
   compare(t, xs, ys, -1);
 });
 
-test('sort queries', function *(t) {
+test('sort queries', async function (t) {
   t.plan(12);
 
   let xs, ys;
@@ -172,7 +172,7 @@ test('sort queries', function *(t) {
   compare(t, xs, ys, -1);
 });
 
-test('sort methods', function *(t) {
+test('sort methods', async function (t) {
   let xs, ys;
 
   xs = [ { type: 'method', pattern: 'absolute', org: 'GET', match: 'GET', order: 0 } ];

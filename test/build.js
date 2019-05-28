@@ -1,235 +1,235 @@
 'use strict';
 
-const test = require('bandage');
+const test = require('awfltst');
 const build = require('../lib/build');
 
-test('errors', function *(t) {
+test('errors', async function (t) {
   t.plan(3);
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     build([{ url: '[', method: 'GET'}], {});
   }, /Expected .* end of input found/, 'parse error');
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     build([{ url: '***', method: 'GET'}], {});
   }, /is not a valid pattern/, 'invalid pattern');
 
-  yield t.throws(function *() {
+  await t.throws(async function () {
     build([{ url: '/', header: 123 }], {});
   }, TypeError, 'header type');
 });
 
-test('duplicate handlers', function *(t) {
+test('duplicate handlers', async function (t) {
   t.plan(58);
 
   let show = r => (r.method || 'ALL') + ' ' + r.url + (r.header ? ' ' + JSON.stringify(r.header) : '');
-  let eq = (x, y) => {
+  let eq = async (x, y) => {
     let msg = '`' + show(x) + '` equals `' + show(y) + '`';
-    return t.throws(() => build([x,y], {}), /duplicate route/, msg);
+    return t.throws(() => { build([x,y], {}); }, /duplicate route/, msg);
   }
-  let ne = (x, y) => {
+  let ne = async (x, y) => {
     let msg = '`' + show(x) + '` not equals `' + show(y) + '`';
-    return t.notThrows(() => build([x,y], {}), msg);
+    return t.notThrows(async () => { build([x,y], {}); }, msg);
   }
 
-  yield eq({url: '/a'  }, {url: '/a'  });
-  yield ne({url: '/a'  }, {url: '/b'  });
-  yield eq({url: '/[a]'}, {url: '/[a]'});
-  yield ne({url: '/[a]'}, {url: '/[b]'});
-  yield eq({url: '/(a)'}, {url: '/(a)'});
-  yield ne({url: '/(a)'}, {url: '/(b)'});
-  yield eq({url: '/*a' }, {url: '/*a' });
-  yield ne({url: '/*a' }, {url: '/*b' });
-  yield eq({url: '/**a'}, {url: '/**a'});
-  yield ne({url: '/**a'}, {url: '/**b'});
+  await eq({url: '/a'  }, {url: '/a'  });
+  await ne({url: '/a'  }, {url: '/b'  });
+  await eq({url: '/[a]'}, {url: '/[a]'});
+  await ne({url: '/[a]'}, {url: '/[b]'});
+  await eq({url: '/(a)'}, {url: '/(a)'});
+  await ne({url: '/(a)'}, {url: '/(b)'});
+  await eq({url: '/*a' }, {url: '/*a' });
+  await ne({url: '/*a' }, {url: '/*b' });
+  await eq({url: '/**a'}, {url: '/**a'});
+  await ne({url: '/**a'}, {url: '/**b'});
 
-  yield eq({url: '?a=1'  }, {url: '?a=1'  });
-  yield ne({url: '?a=1'  }, {url: '?a=2'  });
-  yield eq({url: '?a=[1]'}, {url: '?a=[1]'});
-  yield ne({url: '?a=[1]'}, {url: '?a=[2]'});
-  yield eq({url: '?a=(1)'}, {url: '?a=(1)'});
-  yield ne({url: '?a=(1)'}, {url: '?a=(2)'});
-  yield eq({url: '?a=*1' }, {url: '?a=*1' });
-  yield ne({url: '?a=*1' }, {url: '?a=*2' });
+  await eq({url: '?a=1'  }, {url: '?a=1'  });
+  await ne({url: '?a=1'  }, {url: '?a=2'  });
+  await eq({url: '?a=[1]'}, {url: '?a=[1]'});
+  await ne({url: '?a=[1]'}, {url: '?a=[2]'});
+  await eq({url: '?a=(1)'}, {url: '?a=(1)'});
+  await ne({url: '?a=(1)'}, {url: '?a=(2)'});
+  await eq({url: '?a=*1' }, {url: '?a=*1' });
+  await ne({url: '?a=*1' }, {url: '?a=*2' });
 
-  yield eq({url: '?a'  }, {url: '?a'  });
-  yield ne({url: '?a'  }, {url: '?b'  });
-  yield eq({url: '?[a]'}, {url: '?[a]'});
-  yield ne({url: '?[a]'}, {url: '?[b]'});
-  yield eq({url: '?(a)'}, {url: '?(a)'});
-  yield ne({url: '?(a)'}, {url: '?(b)'});
-  yield eq({url: '?*a' }, {url: '?*a' });
-  yield ne({url: '?*a' }, {url: '?*b' });
+  await eq({url: '?a'  }, {url: '?a'  });
+  await ne({url: '?a'  }, {url: '?b'  });
+  await eq({url: '?[a]'}, {url: '?[a]'});
+  await ne({url: '?[a]'}, {url: '?[b]'});
+  await eq({url: '?(a)'}, {url: '?(a)'});
+  await ne({url: '?(a)'}, {url: '?(b)'});
+  await eq({url: '?*a' }, {url: '?*a' });
+  await ne({url: '?*a' }, {url: '?*b' });
 
-  yield eq({url: '#a'  }, {url: '#a'  });
-  yield ne({url: '#a'  }, {url: '#b'  });
-  yield eq({url: '#[a]'}, {url: '#[a]'});
-  yield ne({url: '#[a]'}, {url: '#[b]'});
-  yield eq({url: '#(a)'}, {url: '#(a)'});
-  yield ne({url: '#(a)'}, {url: '#(b)'});
-  yield eq({url: '#*a' }, {url: '#*a' });
-  yield ne({url: '#*a' }, {url: '#*b' });
+  await eq({url: '#a'  }, {url: '#a'  });
+  await ne({url: '#a'  }, {url: '#b'  });
+  await eq({url: '#[a]'}, {url: '#[a]'});
+  await ne({url: '#[a]'}, {url: '#[b]'});
+  await eq({url: '#(a)'}, {url: '#(a)'});
+  await ne({url: '#(a)'}, {url: '#(b)'});
+  await eq({url: '#*a' }, {url: '#*a' });
+  await ne({url: '#*a' }, {url: '#*b' });
 
-  yield eq({url: '/', method: 'a'  }, {url: '/', method: 'a'  });
-  yield ne({url: '/', method: 'a'  }, {url: '/', method: 'b'  });
-  yield eq({url: '/', method: '[a]'}, {url: '/', method: '[a]'});
-  yield ne({url: '/', method: '[a]'}, {url: '/', method: '[b]'});
-  yield eq({url: '/', method: '(a)'}, {url: '/', method: '(a)'});
-  yield ne({url: '/', method: '(a)'}, {url: '/', method: '(b)'});
-  yield eq({url: '/', method: '*a' }, {url: '/', method: '*a' });
-  yield ne({url: '/', method: '*a' }, {url: '/', method: '*b' });
+  await eq({url: '/', method: 'a'  }, {url: '/', method: 'a'  });
+  await ne({url: '/', method: 'a'  }, {url: '/', method: 'b'  });
+  await eq({url: '/', method: '[a]'}, {url: '/', method: '[a]'});
+  await ne({url: '/', method: '[a]'}, {url: '/', method: '[b]'});
+  await eq({url: '/', method: '(a)'}, {url: '/', method: '(a)'});
+  await ne({url: '/', method: '(a)'}, {url: '/', method: '(b)'});
+  await eq({url: '/', method: '*a' }, {url: '/', method: '*a' });
+  await ne({url: '/', method: '*a' }, {url: '/', method: '*b' });
 
-  yield eq({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'a'  }});
-  yield ne({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'b'  }});
-  yield eq({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[a]'}});
-  yield ne({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[b]'}});
-  yield eq({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(a)'}});
-  yield ne({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(b)'}});
-  yield eq({url: '/', header: {'a': '*a' }}, {url: '/', header: {'a': '*a' }});
-  yield ne({url: '/', header: {'a': '*a' }}, {url: '/', header: {'a': '*b' }});
+  await eq({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'a'  }});
+  await ne({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'b'  }});
+  await eq({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[a]'}});
+  await ne({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[b]'}});
+  await eq({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(a)'}});
+  await ne({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(b)'}});
+  await eq({url: '/', header: {'a': '*a' }}, {url: '/', header: {'a': '*a' }});
+  await ne({url: '/', header: {'a': '*a' }}, {url: '/', header: {'a': '*b' }});
 
-  yield eq({url: '/', header: 'a'  }, {url: '/', header: 'a'  });
-  yield ne({url: '/', header: 'a'  }, {url: '/', header: 'b'  });
-  yield eq({url: '/', header: '[a]'}, {url: '/', header: '[a]'});
-  yield ne({url: '/', header: '[a]'}, {url: '/', header: '[b]'});
-  yield eq({url: '/', header: '(a)'}, {url: '/', header: '(a)'});
-  yield ne({url: '/', header: '(a)'}, {url: '/', header: '(b)'});
-  yield eq({url: '/', header: '*a' }, {url: '/', header: '*a' });
-  yield ne({url: '/', header: '*a' }, {url: '/', header: '*b' });
+  await eq({url: '/', header: 'a'  }, {url: '/', header: 'a'  });
+  await ne({url: '/', header: 'a'  }, {url: '/', header: 'b'  });
+  await eq({url: '/', header: '[a]'}, {url: '/', header: '[a]'});
+  await ne({url: '/', header: '[a]'}, {url: '/', header: '[b]'});
+  await eq({url: '/', header: '(a)'}, {url: '/', header: '(a)'});
+  await ne({url: '/', header: '(a)'}, {url: '/', header: '(b)'});
+  await eq({url: '/', header: '*a' }, {url: '/', header: '*a' });
+  await ne({url: '/', header: '*a' }, {url: '/', header: '*b' });
 });
 
-test('case conflicts', function *(t) {
+test('case conflicts', async function (t) {
   t.plan(83);
 
   let show = r => (r.method || 'ALL') + ' ' + r.url + (r.header ? ' ' + JSON.stringify(r.header) : '');
-  let eq = (x, y, c) => {
+  let eq = async (x, y, c) => {
     let msg = 'case ' + (c ? 'in' : '') + 'sensitive `' + show(x) + '` conflicts with `' + show(y) + '`';
-    return t.throws(() => build([x,y], {case: c}), /case conflict/, msg);
+    return t.throws(async () => { build([x,y], {case: c}); }, /case conflict/, msg);
   }
-  let ne = (x, y, c) => {
+  let ne = async (x, y, c) => {
     let msg = 'case ' + (c ? 'in' : '') + 'sensitive `' + show(x) + '` does not conflict with `' + show(y) + '`';
-    return t.notThrows(() => build([x,y], {case: c}), msg);
+    return t.notThrows(async () => { build([x,y], {case: c}); }, msg);
   }
 
-  yield eq({url: '/a'   }, {url: '/A'   }, true);
-  yield ne({url: '/a'   }, {url: '/A'   }, false);
-  yield eq({url: '/[a]' }, {url: '/[A]' }, true);
-  yield ne({url: '/[a]' }, {url: '/[A]' }, false);
-  yield eq({url: '/(a)' }, {url: '/(A)' }, true);
-  yield ne({url: '/(a)' }, {url: '/(A)' }, false);
-  yield eq({url: '/a*'  }, {url: '/A*'  }, true);
-  yield ne({url: '/a*'  }, {url: '/A*'  }, false);
-  yield eq({url: '/a**' }, {url: '/A**' }, true);
-  yield ne({url: '/a**' }, {url: '/A**' }, false);
+  await eq({url: '/a'   }, {url: '/A'   }, true);
+  await ne({url: '/a'   }, {url: '/A'   }, false);
+  await eq({url: '/[a]' }, {url: '/[A]' }, true);
+  await ne({url: '/[a]' }, {url: '/[A]' }, false);
+  await eq({url: '/(a)' }, {url: '/(A)' }, true);
+  await ne({url: '/(a)' }, {url: '/(A)' }, false);
+  await eq({url: '/a*'  }, {url: '/A*'  }, true);
+  await ne({url: '/a*'  }, {url: '/A*'  }, false);
+  await eq({url: '/a**' }, {url: '/A**' }, true);
+  await ne({url: '/a**' }, {url: '/A**' }, false);
 
-  yield eq({url: '/a/b'}, {url: '/A/b'}, true);
-  yield ne({url: '/a/b'}, {url: '/A/b'}, false);
-  yield ne({url: '/a/b'}, {url: '/a/c'}, true);
-  yield eq({url: '/a/b'}, {url: '/A/c'}, true);
-  yield ne({url: '/a/b'}, {url: '/A/c'}, false);
+  await eq({url: '/a/b'}, {url: '/A/b'}, true);
+  await ne({url: '/a/b'}, {url: '/A/b'}, false);
+  await ne({url: '/a/b'}, {url: '/a/c'}, true);
+  await eq({url: '/a/b'}, {url: '/A/c'}, true);
+  await ne({url: '/a/b'}, {url: '/A/c'}, false);
 
-  yield eq({url: '?a=b'  }, {url: '?a=B'  }, true);
-  yield ne({url: '?a=b'  }, {url: '?a=B'  }, false);
-  yield eq({url: '?a=[b]'}, {url: '?a=[B]'}, true);
-  yield ne({url: '?a=[b]'}, {url: '?a=[B]'}, false);
-  yield eq({url: '?a=(b)'}, {url: '?a=(B)'}, true);
-  yield ne({url: '?a=(b)'}, {url: '?a=(B)'}, false);
-  yield eq({url: '?a=b*' }, {url: '?a=B*' }, true);
-  yield ne({url: '?a=b*' }, {url: '?a=B*' }, false);
+  await eq({url: '?a=b'  }, {url: '?a=B'  }, true);
+  await ne({url: '?a=b'  }, {url: '?a=B'  }, false);
+  await eq({url: '?a=[b]'}, {url: '?a=[B]'}, true);
+  await ne({url: '?a=[b]'}, {url: '?a=[B]'}, false);
+  await eq({url: '?a=(b)'}, {url: '?a=(B)'}, true);
+  await ne({url: '?a=(b)'}, {url: '?a=(B)'}, false);
+  await eq({url: '?a=b*' }, {url: '?a=B*' }, true);
+  await ne({url: '?a=b*' }, {url: '?a=B*' }, false);
 
-  yield eq({url: '?a=b&c'}, {url: '?a=B&c'}, true);
-  yield ne({url: '?a=b&c'}, {url: '?a=B&c'}, false);
-  yield ne({url: '?a=b&c'}, {url: '?a=b&d'}, true);
-  yield eq({url: '?a=b&c'}, {url: '?a=B&d'}, true);
-  yield ne({url: '?a=b&c'}, {url: '?a=B&d'}, false);
+  await eq({url: '?a=b&c'}, {url: '?a=B&c'}, true);
+  await ne({url: '?a=b&c'}, {url: '?a=B&c'}, false);
+  await ne({url: '?a=b&c'}, {url: '?a=b&d'}, true);
+  await eq({url: '?a=b&c'}, {url: '?a=B&d'}, true);
+  await ne({url: '?a=b&c'}, {url: '?a=B&d'}, false);
 
-  yield eq({url: '?a'  }, {url: '?A'  }, true);
-  yield ne({url: '?a'  }, {url: '?A'  }, false);
-  yield eq({url: '?[a]'}, {url: '?[A]'}, true);
-  yield ne({url: '?[a]'}, {url: '?[A]'}, false);
-  yield eq({url: '?(a)'}, {url: '?(A)'}, true);
-  yield ne({url: '?(a)'}, {url: '?(A)'}, false);
-  yield eq({url: '?a*' }, {url: '?A*' }, true);
-  yield ne({url: '?a*' }, {url: '?A*' }, false);
+  await eq({url: '?a'  }, {url: '?A'  }, true);
+  await ne({url: '?a'  }, {url: '?A'  }, false);
+  await eq({url: '?[a]'}, {url: '?[A]'}, true);
+  await ne({url: '?[a]'}, {url: '?[A]'}, false);
+  await eq({url: '?(a)'}, {url: '?(A)'}, true);
+  await ne({url: '?(a)'}, {url: '?(A)'}, false);
+  await eq({url: '?a*' }, {url: '?A*' }, true);
+  await ne({url: '?a*' }, {url: '?A*' }, false);
 
-  yield eq({url: '?a&b'}, {url: '?A&b'}, true);
-  yield ne({url: '?a&b'}, {url: '?A&b'}, false);
-  yield ne({url: '?a&b'}, {url: '?a&c'}, true);
-  yield eq({url: '?a&b'}, {url: '?A&c'}, true);
-  yield ne({url: '?a&b'}, {url: '?A&c'}, false);
+  await eq({url: '?a&b'}, {url: '?A&b'}, true);
+  await ne({url: '?a&b'}, {url: '?A&b'}, false);
+  await ne({url: '?a&b'}, {url: '?a&c'}, true);
+  await eq({url: '?a&b'}, {url: '?A&c'}, true);
+  await ne({url: '?a&b'}, {url: '?A&c'}, false);
 
-  yield eq({url: '#a'  }, {url: '#A'  }, true);
-  yield ne({url: '#a'  }, {url: '#A'  }, false);
-  yield eq({url: '#[a]'}, {url: '#[A]'}, true);
-  yield ne({url: '#[a]'}, {url: '#[A]'}, false);
-  yield eq({url: '#(a)'}, {url: '#(A)'}, true);
-  yield ne({url: '#(a)'}, {url: '#(A)'}, false);
-  yield eq({url: '#a*' }, {url: '#A*' }, true);
-  yield ne({url: '#a*' }, {url: '#A*' }, false);
+  await eq({url: '#a'  }, {url: '#A'  }, true);
+  await ne({url: '#a'  }, {url: '#A'  }, false);
+  await eq({url: '#[a]'}, {url: '#[A]'}, true);
+  await ne({url: '#[a]'}, {url: '#[A]'}, false);
+  await eq({url: '#(a)'}, {url: '#(A)'}, true);
+  await ne({url: '#(a)'}, {url: '#(A)'}, false);
+  await eq({url: '#a*' }, {url: '#A*' }, true);
+  await ne({url: '#a*' }, {url: '#A*' }, false);
 
-  yield eq({url: '/', method: 'a'  }, {url: '/', method: 'A'  }, true);
-  yield ne({url: '/', method: 'a'  }, {url: '/', method: 'A'  }, false);
-  yield eq({url: '/', method: '[a]'}, {url: '/', method: '[A]'}, true);
-  yield ne({url: '/', method: '[a]'}, {url: '/', method: '[A]'}, false);
-  yield eq({url: '/', method: '(a)'}, {url: '/', method: '(A)'}, true);
-  yield ne({url: '/', method: '(a)'}, {url: '/', method: '(A)'}, false);
-  yield eq({url: '/', method: 'a*' }, {url: '/', method: 'A*' }, true);
-  yield ne({url: '/', method: 'a*' }, {url: '/', method: 'A*' }, false);
+  await eq({url: '/', method: 'a'  }, {url: '/', method: 'A'  }, true);
+  await ne({url: '/', method: 'a'  }, {url: '/', method: 'A'  }, false);
+  await eq({url: '/', method: '[a]'}, {url: '/', method: '[A]'}, true);
+  await ne({url: '/', method: '[a]'}, {url: '/', method: '[A]'}, false);
+  await eq({url: '/', method: '(a)'}, {url: '/', method: '(A)'}, true);
+  await ne({url: '/', method: '(a)'}, {url: '/', method: '(A)'}, false);
+  await eq({url: '/', method: 'a*' }, {url: '/', method: 'A*' }, true);
+  await ne({url: '/', method: 'a*' }, {url: '/', method: 'A*' }, false);
 
-  yield eq({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'A'  }}, true);
-  yield ne({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'A'  }}, false);
-  yield eq({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[A]'}}, true);
-  yield ne({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[A]'}}, false);
-  yield eq({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(A)'}}, true);
-  yield ne({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(A)'}}, false);
-  yield eq({url: '/', header: {'a': 'a*' }}, {url: '/', header: {'a': 'A*' }}, true);
-  yield ne({url: '/', header: {'a': 'a*' }}, {url: '/', header: {'a': 'A*' }}, false);
+  await eq({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'A'  }}, true);
+  await ne({url: '/', header: {'a': 'a'  }}, {url: '/', header: {'a': 'A'  }}, false);
+  await eq({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[A]'}}, true);
+  await ne({url: '/', header: {'a': '[a]'}}, {url: '/', header: {'a': '[A]'}}, false);
+  await eq({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(A)'}}, true);
+  await ne({url: '/', header: {'a': '(a)'}}, {url: '/', header: {'a': '(A)'}}, false);
+  await eq({url: '/', header: {'a': 'a*' }}, {url: '/', header: {'a': 'A*' }}, true);
+  await ne({url: '/', header: {'a': 'a*' }}, {url: '/', header: {'a': 'A*' }}, false);
 
-  yield eq({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'b': 'b'}}, true);
-  yield ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'b': 'b'}}, false);
-  yield ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'a', 'c': 'c'}}, true);
-  yield eq({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'c': 'c'}}, true);
-  yield ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'c': 'c'}}, false);
+  await eq({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'b': 'b'}}, true);
+  await ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'b': 'b'}}, false);
+  await ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'a', 'c': 'c'}}, true);
+  await eq({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'c': 'c'}}, true);
+  await ne({url: '/', header: {'a': 'a', 'b': 'b'}}, {url: '/', header: {'a': 'A', 'c': 'c'}}, false);
 
-  yield eq({url: '/', header: 'a'  }, {url: '/', header: 'A'  }, true);
-  yield ne({url: '/', header: 'a'  }, {url: '/', header: 'A'  }, false);
-  yield eq({url: '/', header: '[a]'}, {url: '/', header: '[A]'}, true);
-  yield ne({url: '/', header: '[a]'}, {url: '/', header: '[A]'}, false);
-  yield eq({url: '/', header: '(a)'}, {url: '/', header: '(A)'}, true);
-  yield ne({url: '/', header: '(a)'}, {url: '/', header: '(A)'}, false);
-  yield eq({url: '/', header: 'a*' }, {url: '/', header: 'A*' }, true);
-  yield ne({url: '/', header: 'a*' }, {url: '/', header: 'A*' }, false);
+  await eq({url: '/', header: 'a'  }, {url: '/', header: 'A'  }, true);
+  await ne({url: '/', header: 'a'  }, {url: '/', header: 'A'  }, false);
+  await eq({url: '/', header: '[a]'}, {url: '/', header: '[A]'}, true);
+  await ne({url: '/', header: '[a]'}, {url: '/', header: '[A]'}, false);
+  await eq({url: '/', header: '(a)'}, {url: '/', header: '(A)'}, true);
+  await ne({url: '/', header: '(a)'}, {url: '/', header: '(A)'}, false);
+  await eq({url: '/', header: 'a*' }, {url: '/', header: 'A*' }, true);
+  await ne({url: '/', header: 'a*' }, {url: '/', header: 'A*' }, false);
 
-  yield eq({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'b']  }, true);
-  yield ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'b']  }, false);
-  yield ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['a', 'c']  }, true);
-  yield eq({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'c']  }, true);
-  yield ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'c']  }, false);
+  await eq({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'b']  }, true);
+  await ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'b']  }, false);
+  await ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['a', 'c']  }, true);
+  await eq({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'c']  }, true);
+  await ne({url: '/', header: ['a', 'b']  }, {url: '/', header: ['A', 'c']  }, false);
 });
 
-test('trim conflicts', function *(t) {
+test('trim conflicts', async function (t) {
   t.plan(7);
 
   let show = r => (r.method || 'ALL') + ' ' + r.url + (r.header ? ' ' + JSON.stringify(r.header) : '');
-  let eq = (x, y, trim) => {
+  let eq = async (x, y, trim) => {
     let msg = (trim ? '' : 'non ') +'trimming `' + show(x) + '` conflicts with `' + show(y) + '`';
-    return t.throws(() => build([x,y], {trim}), /duplicate route/, msg);
+    return t.throws(async () => { build([x,y], {trim}); }, /duplicate route/, msg);
   }
-  let ne = (x, y, trim) => {
+  let ne = async (x, y, trim) => {
     let msg = (trim ? '' : 'non ') +'trimming `' + show(x) + '` does not conflict with `' + show(y) + '`';
-    return t.notThrows(() => build([x,y], {trim}), msg);
+    return t.notThrows(async () => { build([x,y], {trim}); }, msg);
   }
 
-  yield eq({url: ''}, {url: '/'}, true);
-  yield ne({url: ''}, {url: '/'}, false);
-  yield eq({url: '/a'}, {url: '/a/'}, true);
-  yield ne({url: '/a'}, {url: '/a/'}, false);
-  yield eq({url: '/a/b'}, {url: '/a/b/'}, true);
-  yield ne({url: '/a/b'}, {url: '/a/b/'}, false);
-  yield ne({url: '/a/b'}, {url: '/a//b/'}, true);
+  await eq({url: ''}, {url: '/'}, true);
+  await ne({url: ''}, {url: '/'}, false);
+  await eq({url: '/a'}, {url: '/a/'}, true);
+  await ne({url: '/a'}, {url: '/a/'}, false);
+  await eq({url: '/a/b'}, {url: '/a/b/'}, true);
+  await ne({url: '/a/b'}, {url: '/a/b/'}, false);
+  await ne({url: '/a/b'}, {url: '/a//b/'}, true);
 });
 
-test('trace', function *(t) {
+test('trace', async function (t) {
   t.plan(6);
 
   let tree = function (routes) {

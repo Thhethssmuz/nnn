@@ -1,11 +1,11 @@
 'use strict';
 
-const test = require('bandage');
+const test = require('awfltst');
 const App = require('../lib');
 
 let trace = x => '`' + x.method + ' ' + x.url + ' ' + JSON.stringify(x.headers) + '`';
 
-let makeTest = function *(t, opts, routes) {
+let makeTest = async function (t, opts, routes) {
   let app = new App(opts);
 
   for (let x of routes) {
@@ -13,7 +13,7 @@ let makeTest = function *(t, opts, routes) {
     let route = x.handler || x.middleware || x.catch;
     let mw    = route.middleware || [];
 
-    let handler = function *() {
+    let handler = async function () {
       t.in(this.req, x.match, trace(route) + ' matches ' + trace(this.req));
 
       let xs   = this.req.args.map(x => {
@@ -52,40 +52,40 @@ let makeTest = function *(t, opts, routes) {
 
   for (let x of routes) {
     for (let e of x.match) {
-      yield app.dispatch(e);
+      await app.dispatch(e);
     }
   }
 };
 
-test('basic', function *(t) {
+test('basic', async function (t) {
   t.plan(4);
 
   let app = new App();
-  yield t.notThrows(() => app.get('/', function *() {}), 'binding to router ok');
-  yield t.notThrows(() => app.finalize(), 'finalize router ok');
-  yield t.notThrows(() => app.finalize(), 'refinalize router ok');
-  yield t.throws(() => app.get('/a', function *() {}), Error, 'cannot bind to finalized router');
+  await t.notThrows(() => app.get('/', async function () {}), 'binding to router ok');
+  await t.notThrows(() => app.finalize(), 'finalize router ok');
+  await t.notThrows(() => app.finalize(), 'refinalize router ok');
+  await t.throws(() => app.get('/a', async function () {}), Error, 'cannot bind to finalized router');
 });
 
-test('methods', function *(t) {
+test('methods', async function (t) {
   t.plan(5);
 
   let app = new App();
-  app.get('/', function *() { t.eq(this.req.method, 'GET', 'GET dispatched'); });
-  app.post('/', function *() { t.eq(this.req.method, 'POST', 'POST dispatched'); });
-  app.put('/', function *() { t.eq(this.req.method, 'PUT', 'PUT dispatched'); });
-  app.del('/', function *() { t.eq(this.req.method, 'DELETE', 'DELETE dispatched'); });
-  app.all('/', function *() { t.eq(this.req.method, 'HEAD', 'ALL dispatched'); });
+  app.get('/', async function () { t.eq(this.req.method, 'GET', 'GET dispatched'); });
+  app.post('/', async function () { t.eq(this.req.method, 'POST', 'POST dispatched'); });
+  app.put('/', async function () { t.eq(this.req.method, 'PUT', 'PUT dispatched'); });
+  app.del('/', async function () { t.eq(this.req.method, 'DELETE', 'DELETE dispatched'); });
+  app.all('/', async function () { t.eq(this.req.method, 'HEAD', 'ALL dispatched'); });
   app.finalize();
 
-  yield app.dispatch({url: '/', method: 'GET', headers: {}});
-  yield app.dispatch({url: '/', method: 'POST', headers: {}});
-  yield app.dispatch({url: '/', method: 'PUT', headers: {}});
-  yield app.dispatch({url: '/', method: 'DELETE', headers: {}});
-  yield app.dispatch({url: '/', method: 'HEAD', headers: {}});
+  await app.dispatch({url: '/', method: 'GET', headers: {}});
+  await app.dispatch({url: '/', method: 'POST', headers: {}});
+  await app.dispatch({url: '/', method: 'PUT', headers: {}});
+  await app.dispatch({url: '/', method: 'DELETE', headers: {}});
+  await app.dispatch({url: '/', method: 'HEAD', headers: {}});
 });
 
-test('context', function *(t) {
+test('context', async function (t) {
   t.plan(1);
 
   let CTX = function (req, res) {
@@ -94,15 +94,15 @@ test('context', function *(t) {
   };
 
   let app = new App({context: CTX});
-  app.all('/', function *() {
+  app.all('/', async function () {
     t.instance(this, CTX, 'correct context');
   });
   app.finalize();
 
-  yield app.dispatch({url: '/', method: 'GET', headers: {}});
+  await app.dispatch({url: '/', method: 'GET', headers: {}});
 });
 
-test('middleware', function *(t) {
+test('middleware', async function (t) {
   t.plan(7);
 
   let CTX = function (req, res) {
@@ -113,42 +113,42 @@ test('middleware', function *(t) {
 
   let app = new App({context: CTX});
 
-  app.middleware.get('a', function *(next) {
+  app.middleware.get('a', async function (next) {
     t.eq(this.test += 1, 1, 'first middleware');
-    yield next();
+    await next();
     t.eq(this.test += 1, 7, 'end of first middleware');
   });
-  app.middleware.get('b', ['a'], function *(next) {
+  app.middleware.get('b', ['a'], async function (next) {
     t.eq(this.test += 1, 2, 'second middleware');
-    yield next();
+    await next();
     t.eq(this.test += 1, 6, 'end of second middleware');
   });
-  let c = function *(next) {
+  let c = async function (next) {
     t.eq(this.test += 1, 3, 'last middleware');
-    yield next();
+    await next();
     t.eq(this.test += 1, 5, 'end of last middleware');
   };
 
-  app.get('/', ['b', c], function *() {
+  app.get('/', ['b', c], async function () {
     t.eq(this.test += 1, 4, 'handler!');
   });
 
   app.finalize();
 
-  yield app.dispatch({url: '/', method: 'GET', headers: {}});
+  await app.dispatch({url: '/', method: 'GET', headers: {}});
 });
-test('middleware not found', function *(t) {
+test('middleware not found', async function (t) {
   t.plan(1);
   let app = new App();
-  app.all('/', ['a'], function *() {});
-  app.catch.all(500, function *(err) {
+  app.all('/', ['a'], async function () {});
+  app.catch.all(500, async function (err) {
     t.ok(/No middleware handler/.test(err.message), 'catch middleware not found');
   });
   app.finalize();
 
-  yield app.dispatch({url: '/', method: 'GET', headers: {}});
+  await app.dispatch({url: '/', method: 'GET', headers: {}});
 });
-test('middleware short circuit', function *(t) {
+test('middleware short circuit', async function (t) {
   t.plan(4);
 
   let CTX = function (req, res) {
@@ -158,29 +158,29 @@ test('middleware short circuit', function *(t) {
   };
 
   let app = new App({context: CTX});
-  app.use(function *(next) {
+  app.use(async function (next) {
     t.eq(this.test += 1, 1, 'global middleware');
-    yield next();
+    await next();
     t.ok(true, 'global middleware finishes execution after error');
   });
-  app.middleware.all('a', function *(next) {
+  app.middleware.all('a', async function (next) {
     t.eq(this.test += 1, 2, 'middleware');
-    yield next();
+    await next();
     t.fail('middleware did not short circuit');
   });
-  app.all('/', ['a','b'], function *() {
+  app.all('/', ['a','b'], async function () {
     t.fail('handler executed');
   });
-  app.catch.all(500, function *(err) {
+  app.catch.all(500, async function (err) {
     t.ok(/No middleware handler/.test(err.message), 'catch middleware not found');
   });
   app.finalize();
 
-  yield app.dispatch({url: '/', method: 'GET', headers: {}});
+  await app.dispatch({url: '/', method: 'GET', headers: {}});
 });
 
-test('not found', function *(t) {
-  yield makeTest(t, {}, [
+test('not found', async function (t) {
+  await makeTest(t, {}, [
     { catch: { url: '404', method: 'GET',  headers: {} },
       match: [
         { url: '/a', method: 'GET', headers: {}, args: [/Not Found/] }
@@ -199,8 +199,8 @@ test('not found', function *(t) {
     }
   ]);
 });
-test('internal error', function *(t) {
-  yield makeTest(t, {}, [
+test('internal error', async function (t) {
+  await makeTest(t, {}, [
     { catch: { url: '500', method: 'GET',  headers: {} },
       match: [
         { url: '/a', method: 'GET', headers: {}, args: [/No error handler for `GET 404`/] }
@@ -220,8 +220,8 @@ test('internal error', function *(t) {
   ]);
 });
 
-test('segments', function *(t) {
-  yield makeTest(t, {}, [
+test('segments', async function (t) {
+  await makeTest(t, {}, [
     { handler: { url: '/', method: 'GET', headers: {} },
       match  : [
         { url: '/', method: 'GET', headers: {}, args: [] }
@@ -260,8 +260,8 @@ test('segments', function *(t) {
   ]);
 });
 
-test('queries', function *(t) {
-  yield makeTest(t, {}, [
+test('queries', async function (t) {
+  await makeTest(t, {}, [
     { handler: { url: '?a&b', method: 'GET', headers: {} },
       match  : [
         { url: '?a=1&b=2',     method: 'GET', headers: {}, args: ['1','2'] },
@@ -292,8 +292,8 @@ test('queries', function *(t) {
   ]);
 });
 
-test('fragments', function *(t) {
-  yield makeTest(t, {}, [
+test('fragments', async function (t) {
+  await makeTest(t, {}, [
     { handler: { url: '#', method: 'GET', headers: {} },
       match  : [
         { url: '#', method: 'GET', headers: {}, args: [] }
@@ -327,8 +327,8 @@ test('fragments', function *(t) {
   ]);
 });
 
-test('methods', function *(t) {
-  yield makeTest(t, {}, [
+test('methods', async function (t) {
+  await makeTest(t, {}, [
     { handler: { url: '/', method: 'GET', headers: {} },
       match  : [
         { url: '/', method: 'GET', headers: {}, args: [] }
@@ -357,8 +357,8 @@ test('methods', function *(t) {
   ]);
 });
 
-test('headers', function *(t) {
-  yield makeTest(t, {}, [
+test('headers', async function (t) {
+  await makeTest(t, {}, [
     { handler: { url: '/', method: 'GET', headers: [] },
       match  : [
         { url: '/', method: 'GET', headers: {'b': '2'          }, args: [] },
@@ -389,8 +389,8 @@ test('headers', function *(t) {
   ]);
 });
 
-test('brace expansion', function *(t) {
-  yield makeTest(t, {}, [
+test('brace expansion', async function (t) {
+  await makeTest(t, {}, [
     { handler: { url: '/{a,b}', method: '{GET,POST}', headers: ['n', {'{x,y}': '*'}] },
       match  : [
         { url: '/a', method: 'GET',  headers: {'n':'n', 'x':'1'}, args: ['n', '1'] },
@@ -406,8 +406,8 @@ test('brace expansion', function *(t) {
   ]);
 });
 
-test('case insensitivity', function *(t) {
-  yield makeTest(t, {case: true}, [
+test('case insensitivity', async function (t) {
+  await makeTest(t, {case: true}, [
     { handler: { url: '/a', method: 'GET', headers: {} },
       match  : [
         { url: '/a', method: 'GET', headers: {}, args: [] },
@@ -441,8 +441,8 @@ test('case insensitivity', function *(t) {
   ]);
 });
 
-test('trimming', function *(t) {
-  yield makeTest(t, {trim: true}, [
+test('trimming', async function (t) {
+  await makeTest(t, {trim: true}, [
     { handler: { url: '', method: 'GET', headers: {} },
       match  : [
         { url: '', method: 'GET', headers: {}, args: [] },
@@ -459,8 +459,8 @@ test('trimming', function *(t) {
 });
 
 
-test('edge-case 1', function *(t) {
-  yield makeTest(t, {}, [
+test('edge-case 1', async function (t) {
+  await makeTest(t, {}, [
     { handler: { url: '/a/*/*', method: 'GET', headers: {} },
       match  : [
         { url: '/a/a/', method: 'GET', headers: {}, args: ['a', ''] },
@@ -484,8 +484,8 @@ test('edge-case 1', function *(t) {
     }
   ]);
 });
-test('edge-case 2', function *(t) {
-  yield makeTest(t, {trim: true, case: true}, [
+test('edge-case 2', async function (t) {
+  await makeTest(t, {trim: true, case: true}, [
     { handler: { url: '/?a&b', method: 'GET', headers: {} },
       match  : [
         { url: '/?a=1&b=2', method: 'GET', headers: {}, args: ['1', '2'] },

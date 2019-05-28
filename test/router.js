@@ -1,10 +1,10 @@
 'use strict';
 
-const test = require('bandage');
+const test = require('awfltst');
 const Router = require('../lib/router');
 const State = Router.State;
 
-test('of', function *(t) {
+test('of', async function (t) {
   t.plan(2);
 
   let state = new State(['a'],[['b','1']],'c','d',[['e','2']],['d']);
@@ -17,7 +17,7 @@ test('of', function *(t) {
     t.fail('of fail');
   });
 });
-test('concat', function *(t) {
+test('concat', async function (t) {
   t.plan(2);
 
   let state = new State(['a'],[['b','1']],'c','d',[['e','2']],['d']);
@@ -30,7 +30,7 @@ test('concat', function *(t) {
     t.fail('concat fail');
   });
 });
-test('map', function *(t) {
+test('map', async function (t) {
   t.plan(2);
 
   let state = new State(['a'],[['b','1']],'c','d',[['e','2']],['d']);
@@ -43,7 +43,7 @@ test('map', function *(t) {
     t.fail('map fail');
   });
 });
-test('ap', function *(t) {
+test('ap', async function (t) {
   t.plan(2);
 
   let state = new State(['a'],[['b','1']],'c','d',[['e','2']],['d']);
@@ -56,7 +56,7 @@ test('ap', function *(t) {
     t.fail('ap fail');
   });
 });
-test('choice', function *(t) {
+test('choice', async function (t) {
   t.plan(2);
 
   let state = new State(['a'],[['b','1']],'c','d',[['e','2']],['d']);
@@ -70,7 +70,7 @@ test('choice', function *(t) {
   });
 });
 
-test('save', function *(t) {
+test('save', async function (t) {
   t.plan(2);
 
   let state = new State([],[],null,null,[],[]);
@@ -84,7 +84,7 @@ test('save', function *(t) {
   });
 });
 
-test('satisfy', function *(t) {
+test('satisfy', async function (t) {
   t.plan(3);
 
   let state = new State(['a'],[['b','1']],'c','d',[['e','2']],['f']);
@@ -102,7 +102,7 @@ test('satisfy', function *(t) {
     t.ok(true, 'satisfy fails when not matched');
   });
 });
-test('match', function *(t) {
+test('match', async function (t) {
   t.plan(3);
 
   let state = new State(['a'],[['b','1']],'c','d',[['e','2']],['f']);
@@ -121,7 +121,7 @@ test('match', function *(t) {
   });
 });
 
-test('segment satisfy', function *(t) {
+test('segment satisfy', async function (t) {
   t.plan(2);
 
   let router = Router.segment(Router.satisfy(x => x === 'x'));
@@ -133,7 +133,7 @@ test('segment satisfy', function *(t) {
     t.fail('segment fail');
   });
 });
-test('segment match', function *(t) {
+test('segment match', async function (t) {
   t.plan(2);
 
   let router = Router.segment(Router.match(/(x)/));
@@ -147,7 +147,7 @@ test('segment match', function *(t) {
 });
 
 
-test('segments satisfy', function *(t) {
+test('segments satisfy', async function (t) {
   t.plan(2);
 
   let router = Router.segments(Router.satisfy(x => x === 'x/y'), Router.of('lol'));
@@ -159,7 +159,7 @@ test('segments satisfy', function *(t) {
     t.fail('segments fail');
   });
 });
-test('segments match', function *(t) {
+test('segments match', async function (t) {
   t.plan(2);
 
   let router = Router.segments(Router.match(/(x\/y)/), Router.of('lol'));
@@ -171,7 +171,7 @@ test('segments match', function *(t) {
     t.fail('segments fail');
   });
 });
-test('segments error', function *(t) {
+test('segments error', async function (t) {
   t.plan(2);
 
   let router = Router.segments(Router.satisfy(x => x === 'x/y'), Router.of('lol'));
@@ -189,7 +189,7 @@ test('segments error', function *(t) {
   });
 });
 
-test('query satisfy', function *(t) {
+test('query satisfy', async function (t) {
   t.plan(2);
 
   let router = Router.query(Router.satisfy(x => x === 'x'), Router.satisfy(x => x === '1'));
@@ -201,7 +201,7 @@ test('query satisfy', function *(t) {
     t.fail('query fail');
   });
 });
-test('query match', function *(t) {
+test('query match', async function (t) {
   t.plan(2);
 
   let router = Router.query(Router.match(/(x)/), Router.match(/(1)/));
@@ -214,7 +214,7 @@ test('query match', function *(t) {
   });
 });
 
-test('fragment satisfy', function *(t) {
+test('fragment satisfy', async function (t) {
   t.plan(2);
 
   let router = Router.fragment(Router.satisfy(x => x === 'x'));
@@ -226,7 +226,7 @@ test('fragment satisfy', function *(t) {
     t.fail('fragment fail');
   });
 });
-test('fragment match', function *(t) {
+test('fragment match', async function (t) {
   t.plan(2);
 
   let router = Router.fragment(Router.match(/(x)/));
@@ -239,7 +239,7 @@ test('fragment match', function *(t) {
   });
 });
 
-test('method satisfy', function *(t) {
+test('method satisfy', async function (t) {
   t.plan(2);
 
   let router = Router.method(Router.satisfy(x => x === 'x'));
@@ -251,7 +251,7 @@ test('method satisfy', function *(t) {
     t.fail('method fail');
   });
 });
-test('method match', function *(t) {
+test('method match', async function (t) {
   t.plan(2);
 
   let router = Router.method(Router.match(/(x)/));
@@ -263,7 +263,7 @@ test('method match', function *(t) {
     t.fail('method fail');
   });
 });
-test('method error', function *(t) {
+test('method error', async function (t) {
   t.plan(1);
 
   let router = Router.method(Router.satisfy(x => x === 'x'));
@@ -275,7 +275,7 @@ test('method error', function *(t) {
   });
 });
 
-test('header satisfy', function *(t) {
+test('header satisfy', async function (t) {
   t.plan(2);
 
   let router = Router.header(Router.satisfy(x => x === 'x'), Router.satisfy(x => x === '1'));
@@ -287,7 +287,7 @@ test('header satisfy', function *(t) {
     t.fail('header fail');
   });
 });
-test('header match', function *(t) {
+test('header match', async function (t) {
   t.plan(2);
 
   let router = Router.header(Router.match(/(x)/), Router.match(/(1)/));
