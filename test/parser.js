@@ -54,7 +54,7 @@ test('paths', async function (t) {
   t.eq(parser.parse('*'), [{
     type   : 'segment',
     pattern: 'variable',
-    match  : /^([^\/]*)$/,
+    match  : /^([^/]*)$/,
     org    : '*'
   }, {
     type   : 'segment',
@@ -100,7 +100,7 @@ test('paths', async function (t) {
   }, {
     type   : 'segment',
     pattern: 'variable',
-    match  : /^([^\/]*)$/,
+    match  : /^([^/]*)$/,
     org    : '*'
   }, {
     type   : 'segment',
@@ -118,7 +118,7 @@ test('queries', async function (t) {
 
   t.plan(12);
 
-  let xs = [
+  const xs = [
     {type: 'segment', pattern: 'absolute', match: '', org: ''},
     {type: 'segment', pattern: 'null', match: undefined}
   ];
@@ -132,7 +132,7 @@ test('queries', async function (t) {
       match  : 'test',
       org    : 'test'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'absolute',
       match  : '1',
@@ -149,7 +149,7 @@ test('queries', async function (t) {
       match  : 'test',
       org    : 'test'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'conditional',
       match  : /^\d+$/,
@@ -166,7 +166,7 @@ test('queries', async function (t) {
       match  : 'test',
       org    : 'test'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'conditional',
       match  : /^(\d+)$/,
@@ -183,10 +183,10 @@ test('queries', async function (t) {
       match  : 'test',
       org    : 'test'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'variable',
-      match  : /^([^\/]*)$/,
+      match  : /^([^/]*)$/,
       org    : '*'
     }
   }), 'variable query');
@@ -200,10 +200,10 @@ test('queries', async function (t) {
       match  : 'test',
       org    : 'test'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'variable',
-      match  : /^([^\/]*)$/
+      match  : /^([^/]*)$/
     }
   }), 'variable query shorthand');
 
@@ -221,10 +221,10 @@ test('queries', async function (t) {
       match  : '',
       org    : ''
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'variable',
-      match  : /^([^\/]*)$/
+      match  : /^([^/]*)$/
     }
   }), 'empty query argument');
 
@@ -237,10 +237,10 @@ test('queries', async function (t) {
       match  : /^\d+$/,
       org    : '[\\d+]'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'variable',
-      match  : /^([^\/]*)$/
+      match  : /^([^/]*)$/
     }
   }), 'non-capturing query argument');
 
@@ -253,10 +253,10 @@ test('queries', async function (t) {
       match  : /^(\d+)$/,
       org    : '(\\d+)'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'variable',
-      match  : /^([^\/]*)$/
+      match  : /^([^/]*)$/
     }
   }), 'capturing query argument');
 
@@ -266,13 +266,13 @@ test('queries', async function (t) {
     key    : {
       type   : 'key',
       pattern: 'variable',
-      match  : /^([^\/]*)$/,
+      match  : /^([^/]*)$/,
       org    : '*'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'variable',
-      match  : /^([^\/]*)$/
+      match  : /^([^/]*)$/
     }
   }), 'variable query argument');
 
@@ -289,7 +289,7 @@ test('queries', async function (t) {
       match  : 'a',
       org    : 'a'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'absolute',
       match  : '1',
@@ -304,7 +304,7 @@ test('queries', async function (t) {
       match  : 'b',
       org    : 'b'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'conditional',
       match  : /^2$/,
@@ -319,7 +319,7 @@ test('queries', async function (t) {
       match  : 'c',
       org    : 'c'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'conditional',
       match  : /^(3)$/,
@@ -334,10 +334,10 @@ test('queries', async function (t) {
       match  : 'd',
       org    : 'd'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'variable',
-      match  : /^([^\/]*)$/,
+      match  : /^([^/]*)$/,
       org    : '*'
     }
   }, {
@@ -349,10 +349,10 @@ test('queries', async function (t) {
       match  : 'e',
       org    : 'e'
     },
-    value  : {
+    value: {
       type   : 'value',
       pattern: 'variable',
-      match  : /^([^\/]*)$/
+      match  : /^([^/]*)$/
     }
   }]), 'multiple queries');
 });
@@ -361,7 +361,7 @@ test('fragments', async function (t) {
 
   t.plan(6);
 
-  let xs = [
+  const xs = [
     {type: 'segment', pattern: 'absolute', match: '', org: ''},
     {type: 'segment', pattern: 'null', match: undefined}
   ];
@@ -397,7 +397,7 @@ test('fragments', async function (t) {
   t.eq(parser.parse('#*'), xs.concat({
     type   : 'fragment',
     pattern: 'variable',
-    match  : /^([^\/]*)$/,
+    match  : /^([^/]*)$/,
     org    : '*'
   }), 'variable fragment');
 
@@ -441,7 +441,7 @@ test('method', async function (t) {
   t.eq(parser.parse('*', {startRule: 'method'}), {
     type   : 'method',
     pattern: 'variable',
-    match  : /^([^\/]*)$/,
+    match  : /^([^/]*)$/,
     org    : '*'
   }, 'variable method');
 
@@ -457,7 +457,7 @@ test('mixed patterns', async function (t) {
   t.eq(parser.parse('a[b](c)*d**'), [{
     type   : 'segment',
     pattern: 'glob',
-    match  : /^ab(c)([^\/]*)d(.*)$/,
+    match  : /^ab(c)([^/]*)d(.*)$/,
     org    : 'a[b](c)*d**'
   }, {
     type   : 'segment',
@@ -468,7 +468,7 @@ test('mixed patterns', async function (t) {
 
 test('reserved', async function (t) {
 
-  let legal = (pattern, msg) => {
+  const legal = (pattern, msg) => {
     try {
       parser.parse(pattern);
       t.ok(true, msg + ' is legal');
@@ -476,7 +476,7 @@ test('reserved', async function (t) {
       t.fail(msg + ' is legal');
     }
   };
-  let illegal = (pattern, column, found, msg) => {
+  const illegal = (pattern, column, found, msg) => {
     try {
       parser.parse(pattern);
       t.fail(msg + ' is illegal');
@@ -516,15 +516,21 @@ test('reserved', async function (t) {
   legal('[a(b)]', 'nested captures in non-capturing environment');
   legal('[[a-z]+]', 'character sequence in non-capturing regular expression');
 
-  illegal('(()', 4, null, 'unescaped opening parenthesis in regular expression');
-  illegal('())', 3, ')', 'unescaped closing parenthesis in regular expression');
-  illegal('[(]', 3, ']', 'unescaped opening parenthesis in non-capturing regular expression');
-  illegal('[)]', 2, ')', 'unescaped closing parenthesis in non-capturing regular expression');
+  illegal('(()', 4, null,
+          'unescaped opening parenthesis in regular expression');
+  illegal('())', 3, ')',
+          'unescaped closing parenthesis in regular expression');
+  illegal('[(]', 3, ']',
+          'unescaped opening parenthesis in non-capturing regular expression');
+  illegal('[)]', 2, ')',
+          'unescaped closing parenthesis in non-capturing regular expression');
 
   illegal('(])', 2, ']', 'unescaped opening bracket in regular expression');
   illegal('([)', 3, ')', 'unescaped closing bracket in regular expression');
-  illegal('[]]', 3, ']', 'unescaped opening bracket in non-capturing regular expression');
-  illegal('[[]', 4, null, 'unescaped closing bracket in non-capturing regular expression');
+  illegal('[]]', 3, ']',
+          'unescaped opening bracket in non-capturing regular expression');
+  illegal('[[]', 4, null,
+          'unescaped closing bracket in non-capturing regular expression');
 
   legal('a[b](c)*d**', 'mixing patterns');
 });
@@ -535,7 +541,7 @@ test('start rules', async function (t) {
 
   await t.notThrows(async function () { parser.parse(''); }, 'default');
 
-  for (let startRule of ['route','pair','key','value','method']) {
+  for (const startRule of ['route', 'pair', 'key', 'value', 'method']) {
     await t.notThrows(async function () {
       parser.parse('', {startRule});
     }, startRule);
@@ -551,10 +557,10 @@ test('inputs', async function (t) {
   t.plan(6);
 
   await t.notThrows(async function () {
-    parser.parse('string')
+    parser.parse('string');
   }, '"string" is a valid input');
 
-  for (let x of [undefined, null, 1, [], {}]) {
+  for (const x of [undefined, null, 1, [], {}]) {
     await t.throws(async function () {
       parser.parse(x);
     }, JSON.stringify(x) + ' is not a valid input');
