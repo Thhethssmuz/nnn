@@ -1,9 +1,19 @@
 {
+  let esc = function (str) {
+    return str.replace(/./g, x => {
+      if (/^[0-9a-z-]$/i.test(x))
+        return x;
+      let c = x.codePointAt(0);
+      if (c <= 0xff)
+        return '\\x' + c.toString(16).padStart(2, '0');
+      return '\\u' + c.toString(16).padStart(4, '0');
+    });
+  };
   let make_regexp = function (x) {
     switch (x.type) {
-      case 'absolute'   : return x.match;
+      case 'absolute'   : return esc(x.match);
       case 'conditional': return x.match;
-      case 'variable'   : return '([^\\/]*)';
+      case 'variable'   : return '([^/]*)';
       case 'glob'       : return '(.*)';
     }
   };
@@ -20,7 +30,7 @@
     return { type, pattern, org, match };
   };
   let null_segment = { type: 'segment', pattern: 'null', match: undefined };
-  let variable_query = { type: 'value', pattern: 'variable', match: /^([^\/]*)$/ };
+  let variable_query = { type: 'value', pattern: 'variable', match: /^([^/]*)$/ };
 }
 
 // Base constructs

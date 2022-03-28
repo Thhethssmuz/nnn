@@ -452,13 +452,35 @@ test('method', async function (t) {
 
 test('mixed patterns', async function (t) {
 
-  t.plan(1);
+  t.plan(3);
 
   t.eq(parser.parse('a[b](c)*d**'), [{
     type   : 'segment',
     pattern: 'glob',
     match  : /^ab(c)([^/]*)d(.*)$/,
     org    : 'a[b](c)*d**'
+  }, {
+    type   : 'segment',
+    pattern: 'null',
+    match  : undefined
+  }], 'mixed patterns');
+
+  t.eq(parser.parse('**.js'), [{
+    type   : 'segment',
+    pattern: 'glob',
+    match  : /^(.*)\x2ejs$/,
+    org    : '**.js'
+  }, {
+    type   : 'segment',
+    pattern: 'null',
+    match  : undefined
+  }], 'mixed patterns');
+
+  t.eq(parser.parse('**.*'), [{
+    type   : 'segment',
+    pattern: 'glob',
+    match  : /^(.*)\x2e([^/]*)$/,
+    org    : '**.*'
   }, {
     type   : 'segment',
     pattern: 'null',
