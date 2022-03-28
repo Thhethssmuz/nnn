@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "pegjs --allowed-start-rules route,pair,key,value,method parser/grammar.pegjs parser/index.js",
-    "test": "awfltst test/*.js",
+    "test": "awfltst --filename --summary test/*.js",
     "coverage": "istanbul cover awfltst test/*.js && cat coverage/lcov.info"
   },
   "dependencies": {
@@ -19,7 +19,7 @@
     "standard-http-error": "^2.0.1"
   },
   "devDependencies": {
-    "awfltst": "^0.1.2",
+    "awfltst": "^0.6.0",
     "istanbul": "^0.4.5",
     "pegjs": "^0.9.0",
     "request": "^2.88.0"
